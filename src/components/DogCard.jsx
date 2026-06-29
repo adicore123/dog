@@ -115,7 +115,7 @@ export default function DogCard({ dog, compact = false, isDark = false }) {
           <h2 className={`font-black tracking-tight break-all leading-tight ${
             isDark ? 'text-slate-100' : 'text-slate-855'
           } ${
-            compact ? 'text-2xl md:text-3xl lg:text-4xl' : 'text-4xl md:text-5xl lg:text-6xl'
+            compact ? 'text-lg sm:text-xl md:text-2xl lg:text-3xl' : 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl'
           }`}>
             {dog.dogName}
           </h2>
@@ -137,7 +137,7 @@ export default function DogCard({ dog, compact = false, isDark = false }) {
           <div className={`font-bold ${
             isDark ? 'text-slate-400' : 'text-slate-500'
           } ${compact ? 'text-[10px] mt-0.5' : 'text-xs mt-1'}`}>
-            בעלים: <span className={isDark ? 'text-slate-200' : 'text-slate-700'}>{dog.ownerName}</span>
+            בעלים: <span className={isDark ? 'text-slate-200' : 'text-slate-750'}>{dog.ownerName}</span>
           </div>
         )}
 
@@ -148,7 +148,7 @@ export default function DogCard({ dog, compact = false, isDark = false }) {
               ? 'bg-slate-950/45 border-slate-850/80 text-slate-350' 
               : 'bg-slate-50/70 border-slate-100 text-slate-600'
           } ${
-            compact ? 'p-2 text-[10px] mt-2 line-clamp-1' : 'p-3 text-xs mt-3 line-clamp-2'
+            compact ? 'p-2 text-[10px] mt-1.5 line-clamp-1' : 'p-3 text-xs mt-2.5 line-clamp-2'
           }`} title={dog.notes}>
             <span className="font-extrabold text-[9px] block opacity-75 mb-0.5">דגשי טיפול:</span>
             {dog.notes}
@@ -159,14 +159,14 @@ export default function DogCard({ dog, compact = false, isDark = false }) {
       {/* Live Stopwatch */}
       <div className={`border-t flex flex-col justify-end ${
         isDark ? 'border-slate-800' : 'border-slate-100'
-      } ${compact ? 'mt-2 pt-2' : 'mt-6 pt-4'}`}>
+      } ${compact ? 'mt-2 pt-2' : 'mt-4 pt-3'}`}>
         <div className={`text-[9px] md:text-[10px] font-bold uppercase tracking-wider mb-0.5 ${
           isDark ? 'text-slate-450' : 'text-slate-400'
         }`}>
           זמן עבודה מצטבר
         </div>
         <div className={`font-mono font-black tracking-wider tabular-nums leading-none ${theme.colorClass} ${
-          compact ? 'text-3xl md:text-4xl lg:text-5xl' : 'text-5xl md:text-6xl lg:text-7xl'
+          compact ? 'text-xl sm:text-2xl md:text-3xl' : 'text-3xl sm:text-4xl md:text-5xl lg:text-6xl'
         }`}>
           {formatStopwatch(elapsedSeconds)}
         </div>

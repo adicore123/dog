@@ -781,7 +781,11 @@ export default function AdminDashboard({
                               {dog.breed}
                             </span>
                             {isAlert && (
-                              <span className="flex items-center gap-1 bg-rose-500/20 border border-rose-500/40 text-rose-300 text-[10px] font-black py-0.5 px-2 rounded-md animate-pulse">
+                              <span className={`flex items-center gap-1 border text-[10px] font-black py-0.5 px-2 rounded-md animate-pulse ${
+                                palette.isDark
+                                  ? 'bg-rose-500/20 border-rose-500/40 text-rose-200'
+                                  : 'bg-rose-100 border-rose-300 text-rose-700'
+                              }`}>
                                 <AlertCircle className="w-3 h-3" />
                                 <span>המתנה חריגה! ({waitMinutes} דק')</span>
                               </span>

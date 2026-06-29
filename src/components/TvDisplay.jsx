@@ -165,7 +165,7 @@ export default function TvDisplay({ dogs, palette, businessAddress, logoUrl, nav
             {/* Desktop / TV view */}
             <div className="hidden lg:grid" style={gridStyle}>
               {dogs.map((dog) => (
-                <DogCard key={dog.id} dog={dog} compact={activeCount > 3} isDark={palette.isDark} />
+                <DogCard key={dog.id} dog={dog} compact={activeCount > 2} isDark={palette.isDark} />
               ))}
             </div>
 
