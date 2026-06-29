@@ -86,6 +86,7 @@ export default function AdminDashboard({
   const [breedInput, setBreedInput] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
   // Card editing & deleting states
   const [editingDog, setEditingDog] = useState(null);
@@ -117,6 +118,19 @@ export default function AdminDashboard({
     return localStorage.getItem('grooming_selected_sound') || 'double_chime';
   });
 
+  const [alertThresholdMinutes, setAlertThresholdMinutes] = useState(() => {
+    const saved = localStorage.getItem('grooming_alert_threshold');
+    return saved ? parseInt(saved, 10) : 15;
+  });
+
+  const handleAlertThresholdChange = (minutes) => {
+    setAlertThresholdMinutes(minutes);
+    localStorage.setItem('grooming_alert_threshold', String(minutes));
+    // Reset so the alert fires again against new threshold
+    setAcknowledged15MinAlerts([]);
+    setActive15MinAlertDog(null);
+  };
+
   const [historySearch, setHistorySearch] = useState('');
   const [historyBreedFilter, setHistoryBreedFilter] = useState('');
   const [historyDateFilter, setHistoryDateFilter] = useState('');
@@ -134,7 +148,7 @@ export default function AdminDashboard({
     return () => clearInterval(timer);
   }, []);
 
-  // 15-Minute waiting queue alert checks + warning badges triggers
+  // 15-Minute waiting queue blocking alert — runs every tick, independent of sound state
   useEffect(() => {
     const now = Date.now();
 
@@ -143,23 +157,29 @@ export default function AdminDashboard({
       const stillWaiting = dogs.find(d => d.id === active15MinAlertDog.id && d.status === 'waiting');
       if (!stillWaiting) {
         setActive15MinAlertDog(null);
-        return;
       }
+      return; // keep showing this alert until dismissed
     }
     
-    // Check if any dog has been waiting in the lobby for 15+ minutes
+    // Check if any dog has been waiting in the lobby for configured minutes
     const alertDog = dogs.find(
       (dog) =>
         dog.status === 'waiting' &&
-        (now - dog.arrivalTime) >= 15 * 60 * 1000 &&
+        (now - dog.arrivalTime) >= alertThresholdMinutes * 60 * 1000 &&
         !acknowledged15MinAlerts.includes(dog.id)
     );
 
-    if (alertDog && !active15MinAlertDog) {
+    if (alertDog) {
       setActive15MinAlertDog(alertDog);
       onTriggerSound(selectedSound);
     }
-    
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dogs, tick, acknowledged15MinAlerts, alertThresholdMinutes]);
+
+  // Warning badge sounds (20-min waiting + 90-min active) — separate effect to avoid conflicts
+  useEffect(() => {
+    const now = Date.now();
+
     // Waiting warning badges threshold (20 mins)
     const waitingAlertIds = dogs
       .filter((dog) => dog.status === 'waiting' && (now - dog.arrivalTime) >= 20 * 60 * 1000)
@@ -173,19 +193,20 @@ export default function AdminDashboard({
     let chimePlayed = false;
 
     const newWaitingAlerts = waitingAlertIds.filter(id => !playedWaitingAlerts.includes(id));
-    if (newWaitingAlerts.length > 0 && !alertDog) {
+    if (newWaitingAlerts.length > 0 && !active15MinAlertDog) {
       onTriggerSound(selectedSound);
       chimePlayed = true;
     }
 
     const newActiveAlerts = activeAlertIds.filter(id => !playedActiveAlerts.includes(id));
-    if (newActiveAlerts.length > 0 && !chimePlayed && !alertDog) {
+    if (newActiveAlerts.length > 0 && !chimePlayed && !active15MinAlertDog) {
       onTriggerSound(selectedSound);
     }
 
     setPlayedWaitingAlerts(waitingAlertIds);
     setPlayedActiveAlerts(activeAlertIds);
-  }, [dogs, tick, playedWaitingAlerts, playedActiveAlerts, selectedSound, acknowledged15MinAlerts, active15MinAlertDog]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dogs, tick]);
 
   useEffect(() => {
     if (!breedInput.trim()) {
@@ -250,6 +271,7 @@ export default function AdminDashboard({
     setBreedInput('');
     setNotes('');
     setIsDropdownOpen(false);
+    setIsFormOpen(false);
   };
 
   const handleSelectBreed = (selected) => {
@@ -510,11 +532,38 @@ export default function AdminDashboard({
         {/* RIGHT COLUMN: REGISTRATION & DEMO ACTIONS (4 cols) */}
         <div className="xl:col-span-4 space-y-6">
           
-          {/* Register Card */}
-          <div className={`rounded-3xl border p-6 shadow-md ${palette.isDark ? 'bg-slate-900/80 border-slate-850 text-slate-100' : 'bg-white border-slate-200/80 text-slate-800'}`}>
-            <h2 className="text-lg font-black border-b border-slate-100/10 pb-3 mb-5 flex items-center gap-2">
-              <Plus className="w-5 h-5 text-purple-650" />
-              <span>רישום לקוח חדש שהגיע</span>
+          {/* Register Card — collapsible */}
+          <div className={`rounded-3xl border shadow-md overflow-hidden transition-all ${palette.isDark ? 'bg-slate-900/80 border-slate-850 text-slate-100' : 'bg-white border-slate-200/80 text-slate-800'}`}>
+            {/* Toggle Header */}
+            <button
+              type="button"
+              onClick={() => setIsFormOpen((v) => !v)}
+              className={`w-full flex items-center justify-between px-6 py-4 transition-colors cursor-pointer ${
+                isFormOpen
+                  ? palette.isDark ? 'bg-purple-900/40' : 'bg-purple-50'
+                  : palette.isDark ? 'hover:bg-slate-800/60' : 'hover:bg-slate-50'
+              }`}
+            >
+              <span className="flex items-center gap-2 font-black text-base">
+                <Plus className={`w-5 h-5 transition-transform duration-300 ${isFormOpen ? 'rotate-45 text-rose-400' : 'text-purple-500'}`} />
+                <span>{isFormOpen ? 'סגור טופס' : 'הוסף כלב חדש'}</span>
+              </span>
+              <span className={`text-xs font-bold px-2.5 py-1 rounded-full transition-colors ${
+                isFormOpen
+                  ? 'bg-rose-100 text-rose-600'
+                  : palette.isDark ? 'bg-purple-900/60 text-purple-300' : 'bg-purple-100 text-purple-600'
+              }`}>
+                {isFormOpen ? 'ביטול' : '+ רישום'}
+              </span>
+            </button>
+
+            {/* Collapsible Form */}
+            <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
+              isFormOpen ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'
+            }`}>
+              <div className="px-6 pb-6 pt-4 border-t border-slate-100/10">
+            <h2 className="text-sm font-black pb-3 mb-4 flex items-center gap-2 text-slate-500">
+              <span>פרטי הכלב והבעלים</span>
             </h2>
             
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -653,20 +702,40 @@ export default function AdminDashboard({
                 <span>רשום והמתן לתספורת</span>
               </button>
             </form>
+              </div>
+            </div>
           </div>
 
           {/* Demo Actions */}
           <div className={`rounded-3xl border p-6 shadow-md ${palette.isDark ? 'bg-slate-900/80 border-slate-855 text-slate-100' : 'bg-white border-slate-200/80 text-slate-800'}`}>
-            <h2 className="text-sm font-black border-b border-slate-100/10 pb-2 flex items-center gap-1.5">
+            <h2 className="text-sm font-black border-b border-slate-100/10 pb-2 flex items-center gap-1.5 mb-3">
               <Sparkles className="w-4 h-4 text-amber-500" />
               <span>סימולציות דמו מהירות לטלוויזיה ולתור</span>
             </h2>
-            <div className="grid grid-cols-1 gap-2 text-xs">
+            <div className="grid grid-cols-2 gap-2 text-xs">
               <button
-                onClick={onLoadDemo}
+                onClick={() => {
+                  setAcknowledged15MinAlerts([]);
+                  setActive15MinAlertDog(null);
+                  setPlayedWaitingAlerts([]);
+                  setPlayedActiveAlerts([]);
+                  onLoadDemo();
+                }}
                 className="bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 p-2.5 rounded-lg font-bold transition-all cursor-pointer text-center"
               >
                 טען סימולציה מלאה
+              </button>
+              <button
+                onClick={() => {
+                  setAcknowledged15MinAlerts([]);
+                  setActive15MinAlertDog(null);
+                  setPlayedWaitingAlerts([]);
+                  setPlayedActiveAlerts([]);
+                  onClearAll();
+                }}
+                className="bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 p-2.5 rounded-lg font-bold transition-all cursor-pointer text-center"
+              >
+                נקה את כל הנתונים
               </button>
             </div>
           </div>
@@ -1205,6 +1274,35 @@ export default function AdminDashboard({
               </p>
             </div>
 
+            {/* Alert Threshold Selector */}
+            <div className="space-y-3 pt-2">
+              <label className="block text-xs font-bold text-slate-500 flex items-center gap-1.5">
+                <AlertCircle className="w-3.5 h-3.5 text-red-400" />
+                זמן המתנה לפני התראת חריגה
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {[10, 15, 20, 25, 30, 45].map((mins) => (
+                  <button
+                    key={mins}
+                    type="button"
+                    onClick={() => handleAlertThresholdChange(mins)}
+                    className={`py-2.5 px-3 rounded-xl border text-xs font-extrabold transition-all cursor-pointer text-center ${
+                      alertThresholdMinutes === mins
+                        ? 'bg-red-500/20 border-red-500 text-red-400 shadow-xs'
+                        : palette.isDark
+                        ? 'bg-slate-800 border-slate-750 text-slate-400 hover:bg-slate-750'
+                        : 'bg-slate-50 border-slate-200 text-slate-500 hover:bg-slate-100'
+                    }`}
+                  >
+                    {mins} דק׳
+                  </button>
+                ))}
+              </div>
+              <p className={`text-[10px] leading-tight ${ palette.isDark ? 'text-slate-450' : 'text-slate-400'}`}>
+                כרגע: התראה אחרי <span className="font-black text-red-400">{alertThresholdMinutes} דקות</span> המתנה בלובי ללא תחילת טיפול
+              </p>
+            </div>
+
             {/* Color Palette Selector */}
             <div className="space-y-3 pt-2">
               <label className="block text-xs font-bold text-slate-500">בחר פלטת צבעים למספרה</label>
@@ -1429,7 +1527,7 @@ export default function AdminDashboard({
         </div>
       )}
 
-      {/* 15-Minute Waiting Alert Popup (Urgent blocking overlay) */}
+      {/* Waiting Alert Popup (Urgent blocking overlay) */}
       {active15MinAlertDog && (
         <div className="fixed inset-0 bg-red-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" dir="rtl">
           <div className={`rounded-3xl border-2 p-8 shadow-2xl space-y-5 animate-bounce-short text-center max-w-md w-full ${
@@ -1447,6 +1545,9 @@ export default function AdminDashboard({
               </p>
               <p className="text-xs text-slate-450 leading-relaxed font-bold">
                 ממתין בלובי כבר <span className="text-red-500 font-extrabold text-sm">{getWaitingTimeMinutes(active15MinAlertDog.arrivalTime)} דקות</span> ללא תחילת טיפול!
+              </p>
+              <p className="text-[10px] text-slate-400">
+                (סף ההתראה מוגדר ל-<span className="font-black">{alertThresholdMinutes} דקות</span> בהגדרות)
               </p>
             </div>
 
