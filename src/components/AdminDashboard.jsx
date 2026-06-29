@@ -44,249 +44,7 @@ const WhatsAppIcon = () => (
   </svg>
 );
 
-// Synthesize long (2.5s-4.5s) sophisticated designer alarms in-code using HTML5 Web Audio API
-const triggerSound = (presetId) => {
-  try {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContext) return;
-    const ctx = new AudioContext();
-    
-    // Helper to play multiple harmonics together (creates rich "designer" chord timbre)
-    const playChord = (freqs, startTime, duration, vol) => {
-      freqs.forEach(f => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(f, ctx.currentTime + startTime);
-        gain.gain.setValueAtTime(0, ctx.currentTime);
-        gain.gain.setValueAtTime(vol, ctx.currentTime + startTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + startTime + duration);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(ctx.currentTime + startTime);
-        osc.stop(ctx.currentTime + startTime + duration);
-      });
-    };
 
-    switch (presetId) {
-      case 'double_chime': // 1.פעמון דלפק מהדהד ארוך
-        // Rich ringing chime with lingering harmonics (approx 3.2s)
-        playChord([880, 1320], 0, 2.5, 0.15); // A5 + E6 (perfect fifth)
-        playChord([1109.73, 1661.22], 0.25, 3.0, 0.12); // C#6 + G#6
-        break;
-
-      case 'short_ping': // 2.צלצול מתכת קוסמי
-        // Dense metallic cascade echoing for 3.5s
-        [1200, 1205, 1500, 1800, 2200].forEach((f, i) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = i % 2 === 0 ? 'sine' : 'triangle';
-          osc.frequency.setValueAtTime(f, ctx.currentTime);
-          gain.gain.setValueAtTime(0.07, ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 3.5);
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start();
-          osc.stop(ctx.currentTime + 3.5);
-        });
-        break;
-
-      case 'ascending': // 3.שעון מעורר מלודי מעוצב
-        // 8-note major chord run playing in a bright rising sequence (lasts 3.2s)
-        [523.25, 659.25, 783.99, 1046.50, 523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
-          const delay = idx * 0.35;
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
-          gain.gain.setValueAtTime(0, ctx.currentTime);
-          gain.gain.setValueAtTime(0.18, ctx.currentTime + delay);
-          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.6);
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(ctx.currentTime + delay);
-          osc.stop(ctx.currentTime + delay + 0.6);
-        });
-        break;
-
-      case 'descending': // 4.צפצוף סנסור דיגיטלי
-        // Heartbeat digital sonar pulses (lasts 3s)
-        [0, 0.12, 0.7, 0.82, 1.4, 1.52, 2.1, 2.22].forEach((delay) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'square';
-          osc.frequency.setValueAtTime(1200, ctx.currentTime + delay);
-          gain.gain.setValueAtTime(0, ctx.currentTime);
-          gain.gain.setValueAtTime(0.15, ctx.currentTime + delay);
-          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.08);
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(ctx.currentTime + delay);
-          osc.stop(ctx.currentTime + delay + 0.08);
-        });
-        break;
-
-      case 'double_beep': // 5.זמזם תעשייתי פועם
-        // Low submarine sawtooth alarm with pitch vibrato (lasts 3.2s)
-        for (let p = 0; p < 4; p++) {
-          const delay = p * 0.8;
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(140, ctx.currentTime + delay);
-          
-          osc.frequency.linearRampToValueAtTime(165, ctx.currentTime + delay + 0.2);
-          osc.frequency.linearRampToValueAtTime(140, ctx.currentTime + delay + 0.4);
-
-          gain.gain.setValueAtTime(0, ctx.currentTime);
-          gain.gain.setValueAtTime(0.24, ctx.currentTime + delay);
-          gain.gain.linearRampToValueAtTime(0.2, ctx.currentTime + delay + 0.35);
-          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.4);
-          
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(ctx.currentTime + delay);
-          osc.stop(ctx.currentTime + delay + 0.4);
-        }
-        break;
-
-      case 'melody': // 6.סירנה מעוצבת עולה ויורדת
-        // Clean triangle siren sweeping smoothly 3 times (lasts 3.6s)
-        {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'triangle';
-          
-          const sweep = (start, duration) => {
-            osc.frequency.setValueAtTime(400, ctx.currentTime + start);
-            osc.frequency.linearRampToValueAtTime(1000, ctx.currentTime + start + duration * 0.5);
-            osc.frequency.linearRampToValueAtTime(400, ctx.currentTime + start + duration);
-          };
-          
-          sweep(0, 1.2);
-          sweep(1.2, 1.2);
-          sweep(2.4, 1.2);
-
-          gain.gain.setValueAtTime(0.24, ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 3.6);
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start();
-          osc.stop(ctx.currentTime + 3.6);
-        }
-        break;
-
-      case 'mini_song': // 7.מנגינת בוקר אנרגטית
-        // Lively, fast digital chime arpeggio (lasts 3s)
-        [523.25, 587.33, 659.25, 698.46, 783.99, 880.00, 987.77, 1046.50, 783.99, 1046.50].forEach((freq, idx) => {
-          const delay = idx * 0.16;
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'square';
-          osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
-          
-          gain.gain.setValueAtTime(0, ctx.currentTime);
-          gain.gain.setValueAtTime(0.12, ctx.currentTime + delay);
-          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.25);
-          
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(ctx.currentTime + delay);
-          osc.stop(ctx.currentTime + delay + 0.25);
-        });
-        break;
-
-      case 'ding_dong': // 8.דינג-דונג מהדהד ארוך
-        // Rich chords played in doorway ding-dong sequence (lasts 3.4s)
-        // Ding
-        {
-          const osc1a = ctx.createOscillator();
-          const osc1b = ctx.createOscillator();
-          const gain1 = ctx.createGain();
-          osc1a.type = 'sine'; osc1b.type = 'triangle';
-          osc1a.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
-          osc1b.frequency.setValueAtTime(739.99, ctx.currentTime); // F#5
-          gain1.gain.setValueAtTime(0.2, ctx.currentTime);
-          gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.0);
-          osc1a.connect(gain1); osc1b.connect(gain1);
-          gain1.connect(ctx.destination);
-          osc1a.start(); osc1b.start();
-          osc1a.stop(ctx.currentTime + 2.0); osc1b.stop(ctx.currentTime + 2.0);
-
-          // Dong
-          const osc2a = ctx.createOscillator();
-          const osc2b = ctx.createOscillator();
-          const gain2 = ctx.createGain();
-          osc2a.type = 'sine'; osc2b.type = 'triangle';
-          osc2a.frequency.setValueAtTime(440.00, ctx.currentTime + 0.4); // A4
-          osc2b.frequency.setValueAtTime(554.37, ctx.currentTime + 0.4); // C#5
-          gain2.gain.setValueAtTime(0, ctx.currentTime);
-          gain2.gain.setValueAtTime(0.2, ctx.currentTime + 0.4);
-          gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 3.4);
-          osc2a.connect(gain2); osc2b.connect(gain2);
-          gain2.connect(ctx.destination);
-          osc2a.start(ctx.currentTime + 0.4); osc2b.start(ctx.currentTime + 0.4);
-          osc2a.stop(ctx.currentTime + 3.4); osc2b.stop(ctx.currentTime + 3.4);
-        }
-        break;
-
-      case 'bubble_plop': // 9.טלפון וינטג\' ארוך
-        // Vintage phone mechanical ringing cycle (lasts 4.0s)
-        {
-          const ring = (start) => {
-            for (let i = 0; i < 20; i++) {
-              const stepDelay = start + i * 0.03;
-              const osc = ctx.createOscillator();
-              const gain = ctx.createGain();
-              osc.type = 'sine';
-              osc.frequency.setValueAtTime(i % 2 === 0 ? 950 : 1000, ctx.currentTime + stepDelay);
-              gain.gain.setValueAtTime(0, ctx.currentTime);
-              gain.gain.setValueAtTime(0.2, ctx.currentTime + stepDelay);
-              gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + stepDelay + 0.04);
-              osc.connect(gain);
-              gain.connect(ctx.destination);
-              osc.start(ctx.currentTime + stepDelay);
-              osc.stop(ctx.currentTime + stepDelay + 0.04);
-            }
-          };
-          ring(0);
-          ring(1.2);
-          ring(2.4);
-        }
-        break;
-
-      case 'urgent_pulse': // 10.זמזם חירום מואץ
-        // 12 beeps accelerating in rate and pitch (lasts 3.5s)
-        {
-          let time = 0;
-          for (let i = 0; i < 12; i++) {
-            const delay = time;
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = 'sawtooth';
-            const freq = 600 + i * 55; // Pitch escalates
-            osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
-            
-            gain.gain.setValueAtTime(0, ctx.currentTime);
-            gain.gain.setValueAtTime(0.25, ctx.currentTime + delay);
-            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.08);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start(ctx.currentTime + delay);
-            osc.stop(ctx.currentTime + delay + 0.08);
-
-            time += Math.max(0.12, 0.4 - i * 0.03); // Speed increases
-          }
-        }
-        break;
-
-      default:
-        break;
-    }
-  } catch (e) {
-    console.warn('AudioContext trigger failed', e);
-  }
-};
 
 export default function AdminDashboard({
   dogs,
@@ -297,6 +55,7 @@ export default function AdminDashboard({
   onDeleteHistoryItem,
   onLoadDemo,
   onClearAll,
+  onTriggerSound,
   navigate
 }) {
   const [dogName, setDogName] = useState('');
@@ -358,13 +117,13 @@ export default function AdminDashboard({
 
     const newWaitingAlerts = waitingAlertIds.filter(id => !playedWaitingAlerts.includes(id));
     if (newWaitingAlerts.length > 0) {
-      triggerSound(selectedSound);
+      onTriggerSound(selectedSound);
       chimePlayed = true;
     }
 
     const newActiveAlerts = activeAlertIds.filter(id => !playedActiveAlerts.includes(id));
     if (newActiveAlerts.length > 0 && !chimePlayed) {
-      triggerSound(selectedSound);
+      onTriggerSound(selectedSound);
     }
 
     setPlayedWaitingAlerts(waitingAlertIds);
@@ -446,7 +205,7 @@ export default function AdminDashboard({
     const soundId = e.target.value;
     setSelectedSound(soundId);
     localStorage.setItem('grooming_selected_sound', soundId);
-    triggerSound(soundId);
+    onTriggerSound(soundId);
   };
 
   const getWhatsAppUrl = (phoneNum, ownerName, dogName) => {
@@ -579,7 +338,7 @@ export default function AdminDashboard({
 
           {/* Test Sound Button */}
           <button
-            onClick={() => triggerSound(selectedSound)}
+            onClick={() => onTriggerSound(selectedSound)}
             className="flex items-center gap-1.5 bg-white hover:bg-slate-100 text-slate-650 py-2.5 px-4 rounded-xl border border-slate-200 shadow-xs transition-all cursor-pointer text-xs font-bold"
             title="השמע בדיקה לצליל שבחרת"
           >

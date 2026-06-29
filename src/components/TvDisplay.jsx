@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import DogCard from './DogCard';
-import { Calendar, Clock, Smile, Plus, Bone } from 'lucide-react';
+import { Calendar, Clock, Smile, Plus, Bone, Volume2, VolumeX } from 'lucide-react';
 
 export default function TvDisplay({ dogs, navigate }) {
   const [currentDate, setCurrentDate] = useState(new Date());
+  
+  // Track browser AudioContext unlock state (needed for TV autoplay policy)
+  const [isAudioUnlocked, setIsAudioUnlocked] = useState(() => {
+    return sessionStorage.getItem('grooming_audio_unlocked') === 'true';
+  });
 
   // Real-time clock in the header
   useEffect(() => {
@@ -12,6 +17,33 @@ export default function TvDisplay({ dogs, navigate }) {
     }, 1000);
     return () => clearInterval(timer);
   }, []);
+
+  const unlockAudio = () => {
+    if (isAudioUnlocked) return;
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (AudioContext) {
+        const ctx = new AudioContext();
+        ctx.resume().then(() => {
+          // Play a tiny sub-audible chime to activate the hardware speaker channel
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(440, ctx.currentTime);
+          gain.gain.setValueAtTime(0.001, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.05);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.05);
+        });
+      }
+    } catch (e) {
+      console.warn('Failed to unlock audio context', e);
+    }
+    setIsAudioUnlocked(true);
+    sessionStorage.setItem('grooming_audio_unlocked', 'true');
+  };
 
   const formatHeaderTime = (date) => {
     return date.toLocaleTimeString('he-IL', {
@@ -71,7 +103,10 @@ export default function TvDisplay({ dogs, navigate }) {
   };
 
   return (
-    <div className="flex flex-col min-h-screen lg:h-screen lg:overflow-hidden bg-gradient-to-br from-indigo-50/20 via-[#faf9f2] to-amber-50/20 p-4 md:p-8 select-none relative overflow-hidden">
+    <div 
+      onClick={unlockAudio}
+      className="flex flex-col min-h-screen lg:h-screen lg:overflow-hidden bg-gradient-to-br from-indigo-50/20 via-[#faf9f2] to-amber-50/20 p-4 md:p-8 select-none relative overflow-hidden cursor-pointer"
+    >
       {/* Decorative background illustrations (bubbles/blobs) for dog salon atmosphere */}
       <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-indigo-150/15 rounded-full filter blur-3xl -z-10 pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-amber-100/10 rounded-full filter blur-3xl -z-10 pointer-events-none" />
@@ -107,6 +142,18 @@ export default function TvDisplay({ dogs, navigate }) {
         {/* Left Side: Stats & Clock */}
         <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto lg:mr-auto justify-between lg:justify-end">
           
+          {/* Audio State Badge */}
+          <div className={`px-4 py-2.5 rounded-xl border shadow-sm flex items-center gap-2 transition-all ${
+            isAudioUnlocked 
+              ? 'bg-emerald-50/50 border-emerald-200 text-emerald-700' 
+              : 'bg-amber-50 border-amber-300 text-amber-800 animate-pulse'
+          }`}>
+            {isAudioUnlocked ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+            <span className="text-xs font-bold">
+              {isAudioUnlocked ? 'רמקול פעיל להתראות' : 'רמקול מושתק (לחץ להפעלה)'}
+            </span>
+          </div>
+
           {/* Active Dogs Count */}
           <div className="bg-white/95 backdrop-blur-sm px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
@@ -167,11 +214,30 @@ export default function TvDisplay({ dogs, navigate }) {
         )}
       </main>
 
+      {/* Floating Audio Unlock Banner (Visible only when audio is not unlocked yet) */}
+      {!isAudioUnlocked && (
+        <div className="fixed bottom-16 right-4 left-4 md:right-8 md:left-auto md:w-96 bg-amber-500 text-white rounded-2xl p-4 shadow-2xl border border-amber-600 flex items-center justify-between gap-4 z-50 animate-bounce cursor-pointer">
+          <div className="flex items-center gap-3">
+            <VolumeX className="w-6 h-6 animate-pulse" />
+            <div className="text-right">
+              <div className="text-sm font-black">התראות קוליות מושתקות בטלוויזיה</div>
+              <div className="text-[10px] font-bold text-amber-100 mt-0.5">לחץ/הקש בכל מקום על המסך פעם אחת כדי לאפשר צלילים</div>
+            </div>
+          </div>
+          <button className="bg-white text-amber-600 font-extrabold text-xs px-3 py-1.5 rounded-lg border border-amber-400">
+            הפעל סאונד
+          </button>
+        </div>
+      )}
+
       {/* Subtle bottom informational bar with tiny, low-profile admin link */}
       <footer className="flex-shrink-0 mt-4 lg:mt-6 pt-4 border-t border-slate-200/60 flex justify-between text-slate-400 text-xs font-semibold z-10">
         <div>JOY 🐶 POLA • אבן גבירול 163, תל אביב</div>
         <button
-          onClick={() => navigate('/admin')}
+          onClick={(e) => {
+            e.stopPropagation(); // Avoid triggering unlockAudio
+            navigate('/admin');
+          }}
           className="text-slate-400 hover:text-blue-800 transition-colors duration-200 cursor-pointer font-bold"
         >
           מעבר לממשק ניהול
