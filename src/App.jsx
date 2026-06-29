@@ -25,7 +25,7 @@ export const PALETTES = [
     bgColor: '#fff5f6',
     primaryText: 'text-rose-900',
     titleGradient: 'from-rose-900 to-purple-800',
-    primaryBg: 'bg-rose-550 hover:bg-rose-650 focus:border-rose-450 shadow-rose-100',
+    primaryBg: 'bg-rose-600 hover:bg-rose-700 focus:border-rose-500 shadow-rose-100',
     borderCol: 'border-rose-200',
     headerBadge: 'bg-white border-rose-100',
     accentText: 'text-purple-600',

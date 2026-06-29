@@ -34,7 +34,7 @@ const SOUND_PRESETS = [
 
 const PALETTES_PREVIEW = [
   { id: 'cream_classic', name: 'שמנת קלאסית 🐶 (JOY & POLA)', color1: '#faf9f2', color2: '#1e3a8a' },
-  { id: 'sunset_pink', name: 'ורוד שקיעה תל אביבית 🌸', color1: '#fff5f6', color2: '#be123c' },
+  { id: 'sunset_pink', name: 'ורוד שקיעה תל אביבית 🌸', color1: '#fff5f6', color2: '#e11d48' },
   { id: 'pistachio_chic', name: 'פיסטוק ורוד שיק 🌿', color1: '#f4f7f0', color2: '#065f46' },
   { id: 'lavender_dreams', name: 'לבנדר חלומות 🍇', color1: '#f7f4fc', color2: '#6d28d9' },
   { id: 'vibrant_coral', name: 'קורל תפוז תוסס 🍊', color1: '#fffbf7', color2: '#ea580c' }
@@ -75,6 +75,7 @@ export default function AdminDashboard({
   
   const [breedInput, setBreedInput] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
   // Custom persistent breeds list
   const [availableBreeds, setAvailableBreeds] = useState(() => {
@@ -328,6 +329,16 @@ export default function AdminDashboard({
         {/* Action Controls */}
         <div className="flex flex-wrap items-center gap-3">
           
+          {/* Settings Trigger Button */}
+          <button
+            onClick={() => setIsSettingsOpen(true)}
+            className="flex items-center gap-1.5 bg-white hover:bg-slate-100 text-slate-700 py-2.5 px-4 rounded-xl border border-slate-200 shadow-xs transition-all cursor-pointer text-xs font-bold"
+            title="פתר פאנל הגדרות מערכת וצבעים"
+          >
+            <Settings className="w-4 h-4 ml-1 text-slate-500" />
+            <span>הגדרות ⚙️</span>
+          </button>
+
           {/* Sound Selector Dropdown */}
           <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl px-3 py-1.5 shadow-xs">
             <Volume2 className="w-4 h-4 text-purple-650" />
@@ -348,7 +359,7 @@ export default function AdminDashboard({
           {/* Test Sound Button */}
           <button
             onClick={() => onTriggerSound(selectedSound)}
-            className="flex items-center gap-1.5 bg-white hover:bg-slate-100 text-slate-650 py-2.5 px-4 rounded-xl border border-slate-200 shadow-xs transition-all cursor-pointer text-xs font-bold"
+            className="flex items-center gap-1.5 bg-white hover:bg-slate-100 text-slate-655 py-2.5 px-4 rounded-xl border border-slate-200 shadow-xs transition-all cursor-pointer text-xs font-bold"
             title="השמע בדיקה לצליל שבחרת"
           >
             <span>השמע בדיקה 🔊</span>
@@ -367,7 +378,7 @@ export default function AdminDashboard({
       {/* Main Grid */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
         
-        {/* RIGHT COLUMN: REGISTRATION & SETTINGS (4 cols) */}
+        {/* RIGHT COLUMN: REGISTRATION & DEMO ACTIONS (4 cols) */}
         <div className="xl:col-span-4 space-y-6">
           
           {/* Register Card */}
@@ -487,79 +498,12 @@ export default function AdminDashboard({
 
               <button
                 type="submit"
-                className={`w-full ${palette.primaryBg} text-white font-bold py-3 px-4 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 text-sm mt-6`}
+                className={`w-full ${palette.primaryBg} text-white font-bold py-3.5 px-4 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 text-sm mt-6`}
               >
                 <Plus className="w-4 h-4" />
                 <span>רשום והמתן לתספורת</span>
               </button>
             </form>
-          </div>
-
-          {/* System Settings Panel */}
-          <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-md space-y-5">
-            <h2 className="text-sm font-black text-slate-800 border-b border-slate-100 pb-3 flex items-center gap-1.5">
-              <Settings className="w-4 h-4 text-slate-600" />
-              <span>הגדרות המערכת והטלוויזיה</span>
-            </h2>
-
-            {/* TV Sound Toggle */}
-            <div className="space-y-2">
-              <label className="block text-xs font-bold text-slate-500">שמע והתראות בטלוויזיה</label>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => onTvSoundToggle(true)}
-                  className={`flex-1 py-2 px-3 rounded-xl border text-xs font-extrabold transition-all cursor-pointer text-center ${
-                    tvSoundEnabled
-                      ? 'bg-emerald-50 border-emerald-300 text-emerald-700 shadow-xs'
-                      : 'bg-slate-50 border-slate-200 text-slate-400'
-                  }`}
-                >
-                  🔊 סאונד מופעל
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onTvSoundToggle(false)}
-                  className={`flex-1 py-2 px-3 rounded-xl border text-xs font-extrabold transition-all cursor-pointer text-center ${
-                    !tvSoundEnabled
-                      ? 'bg-rose-50 border-rose-300 text-rose-700 shadow-xs'
-                      : 'bg-slate-50 border-slate-200 text-slate-400'
-                  }`}
-                >
-                  🔇 טלוויזיה שקטה
-                </button>
-              </div>
-            </div>
-
-            {/* Design & Color Palette Selector */}
-            <div className="space-y-3 pt-2">
-              <label className="block text-xs font-bold text-slate-500">בחר פלטת צבעים למספרה</label>
-              <div className="grid grid-cols-1 gap-2">
-                {PALETTES_PREVIEW.map((p) => {
-                  const isSelected = p.id === palette.id;
-                  return (
-                    <button
-                      key={p.id}
-                      type="button"
-                      onClick={() => onPaletteChange(p.id)}
-                      className={`w-full flex items-center justify-between p-2.5 rounded-xl border transition-all cursor-pointer text-right ${
-                        isSelected
-                          ? 'border-purple-650 bg-purple-50/30 font-black shadow-xs'
-                          : 'border-slate-200 hover:bg-slate-50 font-bold'
-                      }`}
-                    >
-                      <span className="text-xs text-slate-700">{p.name}</span>
-                      
-                      {/* Color pills preview */}
-                      <div className="flex items-center gap-1 shrink-0">
-                        <span className="w-3.5 h-3.5 rounded-full border border-slate-300/40" style={{ backgroundColor: p.color1 }} />
-                        <span className="w-3.5 h-3.5 rounded-full border border-slate-300/40" style={{ backgroundColor: p.color2 }} />
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
           </div>
 
           {/* Demo Actions */}
@@ -883,6 +827,102 @@ export default function AdminDashboard({
           )}
         </div>
       </div>
+
+      {/* Settings Modal (Popup) */}
+      {isSettingsOpen && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4" dir="rtl" onClick={() => setIsSettingsOpen(false)}>
+          <div 
+            className="bg-white rounded-3xl border border-slate-200 max-w-md w-full p-6 shadow-2xl space-y-5 animate-fade-in text-right"
+            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
+          >
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h2 className="text-lg font-black text-slate-800 flex items-center gap-1.5">
+                <Settings className="w-5 h-5 text-slate-600" />
+                <span>הגדרות המערכת והטלוויזיה</span>
+              </h2>
+              <button 
+                onClick={() => setIsSettingsOpen(false)}
+                className="text-slate-400 hover:text-slate-800 text-xl font-bold p-1 cursor-pointer"
+              >
+                ×
+              </button>
+            </div>
+
+            {/* TV Sound Toggle */}
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-slate-500">שמע והתראות בטלוויזיה</label>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => onTvSoundToggle(true)}
+                  className={`flex-1 py-2.5 px-3 rounded-xl border text-xs font-extrabold transition-all cursor-pointer text-center ${
+                    tvSoundEnabled
+                      ? 'bg-emerald-50 border-emerald-300 text-emerald-700 shadow-xs'
+                      : 'bg-slate-50 border-slate-200 text-slate-400'
+                  }`}
+                >
+                  🔊 סאונד מופעל
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onTvSoundToggle(false)}
+                  className={`flex-1 py-2.5 px-3 rounded-xl border text-xs font-extrabold transition-all cursor-pointer text-center ${
+                    !tvSoundEnabled
+                      ? 'bg-rose-50 border-rose-300 text-rose-700 shadow-xs'
+                      : 'bg-slate-50 border-slate-200 text-slate-400'
+                  }`}
+                >
+                  🔇 טלוויזיה שקטה
+                </button>
+              </div>
+            </div>
+
+            {/* Color Palette Selector */}
+            <div className="space-y-3 pt-2">
+              <label className="block text-xs font-bold text-slate-500">בחר פלטת צבעים למספרה</label>
+              <div className="grid grid-cols-1 gap-2">
+                {PALETTES_PREVIEW.map((p) => {
+                  const isSelected = p.id === palette.id;
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => onPaletteChange(p.id)}
+                      className={`w-full flex items-center justify-between p-2.5 rounded-xl border transition-all cursor-pointer text-right ${
+                        isSelected
+                          ? 'border-purple-600 bg-purple-50/30 font-black shadow-xs'
+                          : 'border-slate-200 hover:bg-slate-50 font-bold'
+                      }`}
+                    >
+                      <span className="text-xs text-slate-700">{p.name}</span>
+                      
+                      {/* Color pills preview */}
+                      <div className="flex items-center gap-1 shrink-0">
+                        <span className="w-3.5 h-3.5 rounded-full border border-slate-300/40" style={{ backgroundColor: p.color1 }} />
+                        <span className="w-3.5 h-3.5 rounded-full border border-slate-300/40" style={{ backgroundColor: p.color2 }} />
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Modal Footer / Close */}
+            <div className="pt-3 border-t border-slate-100 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setIsSettingsOpen(false)}
+                className={`py-2 px-6 text-white text-xs font-extrabold rounded-xl transition-all cursor-pointer ${palette.primaryBg}`}
+              >
+                סגור שמירה 🏁
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className={`mt-12 pt-6 border-t ${palette.borderCol} flex justify-between text-slate-400 text-xs font-semibold`}>
