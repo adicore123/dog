@@ -8,7 +8,7 @@ export default function AdminLogin({ onLogin, navigate }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (password === 'poladog') {
+    if (password === '123123') {
       setError(false);
       onLogin();
     } else {
