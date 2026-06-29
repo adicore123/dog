@@ -238,6 +238,47 @@ export default function AdminDashboard({
     return `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`;
   };
 
+  // Compressed Image Upload Reader (Base64 Canvas Optimization to fit LocalStorage)
+  const handleLogoUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX_DIM = 256;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_DIM) {
+            height = Math.round((height * MAX_DIM) / width);
+            width = MAX_DIM;
+          }
+        } else {
+          if (height > MAX_DIM) {
+            width = Math.round((width * MAX_DIM) / height);
+            height = MAX_DIM;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Compress image data to JPEG format with 0.7 quality factor to keep Base64 small
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+        onLogoUrlChange(compressedDataUrl);
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
   const getWaitingTimeMinutes = (arrivalTime) => {
     const elapsedMs = Date.now() - arrivalTime;
     return Math.max(0, Math.floor(elapsedMs / 60000));
@@ -545,7 +586,7 @@ export default function AdminDashboard({
           
           {/* Waiting Queue */}
           <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-md">
-            <h2 className="text-lg font-black text-slate-800 border-b border-slate-100 pb-3 mb-4 flex items-center justify-between">
+            <h2 className="text-lg font-black text-slate-855 border-b border-slate-100 pb-3 mb-4 flex items-center justify-between">
               <span className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
                 <span>תור הממתינים לתספורת ({waitingDogs.length})</span>
@@ -718,7 +759,7 @@ export default function AdminDashboard({
         <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-md">
           
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between border-b border-slate-100 pb-4 mb-6 gap-4">
-            <h2 className="text-lg font-black text-slate-800 flex items-center gap-2">
+            <h2 className="text-lg font-black text-slate-855 flex items-center gap-2">
               <Calendar className="w-5 h-5 text-indigo-650" />
               <span>ארכיון טיפולים והיסטוריית תספורות מלאה ({filteredHistory.length})</span>
             </h2>
@@ -890,19 +931,47 @@ export default function AdminDashboard({
               </div>
             </div>
 
-            {/* Business Logo URL input */}
-            <div className="space-y-1.5 pt-1">
-              <label className="block text-xs font-bold text-slate-500">כתובת קישור לתמונת לוגו (URL)</label>
-              <input
-                type="text"
-                placeholder="הכנס כתובת תמונה מהאינטרנט או השאר ריק לברירת מחדל..."
-                value={logoUrl === '/logo.jpg' ? '' : logoUrl}
-                onChange={(e) => onLogoUrlChange(e.target.value.trim() || '/logo.jpg')}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:bg-white font-medium transition-all"
-                dir="ltr"
-              />
+            {/* Business Logo File Upload option */}
+            <div className="space-y-2 pt-1">
+              <label className="block text-xs font-bold text-slate-500">העלאת לוגו למספרה</label>
+              
+              <div className="flex items-center gap-4 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                {/* Logo Preview */}
+                <div className="w-16 h-16 bg-white rounded-xl border border-slate-200 flex items-center justify-center overflow-hidden shrink-0">
+                  <img
+                    src={logoUrl || "/logo.jpg"}
+                    className="w-full h-full object-contain"
+                    alt="Logo Preview"
+                    onError={(e) => {
+                      e.target.src = "/logo.jpg";
+                    }}
+                  />
+                </div>
+
+                <div className="flex-1 space-y-1.5 text-right">
+                  <label className="inline-block bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-700 text-xs font-black py-2 px-3 rounded-xl cursor-pointer transition-all">
+                    <span>בחר קובץ תמונה 📁</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoUpload}
+                      className="hidden"
+                    />
+                  </label>
+                  
+                  {logoUrl !== '/logo.jpg' && (
+                    <button
+                      type="button"
+                      onClick={() => onLogoUrlChange('/logo.jpg')}
+                      className="block text-[10px] text-red-500 hover:text-red-700 font-extrabold cursor-pointer"
+                    >
+                      שחזר לוגו מקורי של JOY & POLA
+                    </button>
+                  )}
+                </div>
+              </div>
               <p className="text-[10px] text-slate-450 leading-tight">
-                הלוגו מתעדכן במסך הציבורי ובניהול. השאר ריק לחזרה ללוגו הקיים.
+                מומלץ להעלות תמונה ריבועית או לוגו עם רקע לבן. התמונה תידחס ותישמר במערכת באופן אוטומטי.
               </p>
             </div>
 
@@ -914,7 +983,7 @@ export default function AdminDashboard({
                 placeholder="הקלד את כתובת המספרה להצגה..."
                 value={businessAddress}
                 onChange={(e) => onBusinessAddressChange(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:bg-white font-medium transition-all"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:bg-white font-medium transition-all"
               />
             </div>
 
@@ -926,7 +995,7 @@ export default function AdminDashboard({
                 placeholder="נוסח הודעת וואטסאפ לסיום תספורת..."
                 value={whatsappTemplate}
                 onChange={(e) => onWhatsappTemplateChange(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-850 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:bg-white font-medium transition-all resize-none leading-relaxed"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-slate-855 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:bg-white font-medium transition-all resize-none leading-relaxed"
               />
               <p className="text-[10px] text-slate-450 leading-tight">
                 השתמש ב- <span className="font-bold">{'{owner}'}</span> עבור שם הבעלים, וב- <span className="font-bold">{'{dog}'}</span> עבור שם הכלב.
