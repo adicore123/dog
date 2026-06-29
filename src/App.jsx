@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import TvDisplay from './components/TvDisplay';
 import AdminDashboard from './components/AdminDashboard';
+import AdminLogin from './components/AdminLogin';
 
 export default function App() {
   // Simple client-side state-based router
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
+  
+  // Authorization state (persisted per-session)
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(() => {
+    return sessionStorage.getItem('grooming_admin_authenticated') === 'true';
+  });
 
   useEffect(() => {
     const handleLocationChange = () => {
@@ -231,6 +237,17 @@ export default function App() {
 
   // Render path-specific page
   if (currentPath === '/admin') {
+    if (!isAdminAuthenticated) {
+      return (
+        <AdminLogin
+          onLogin={() => {
+            setIsAdminAuthenticated(true);
+            sessionStorage.setItem('grooming_admin_authenticated', 'true');
+          }}
+          navigate={navigate}
+        />
+      );
+    }
     return (
       <AdminDashboard
         dogs={dogs}
