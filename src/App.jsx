@@ -558,6 +558,14 @@ export default function App() {
     setDogs((prev) => prev.filter((dog) => dog.id !== id));
   };
 
+  const handleUpdateDog = (updatedDog) => {
+    setDogs((prev) => prev.map((d) => (d.id === updatedDog.id ? updatedDog : d)));
+  };
+
+  const handleDeleteDog = (id) => {
+    setDogs((prev) => prev.filter((d) => d.id !== id));
+  };
+
   const handleDeleteHistoryItem = (id) => {
     setHistory((prev) => prev.filter((item) => item.id !== id));
   };
@@ -722,6 +730,8 @@ export default function App() {
         onRegisterDog={handleRegisterDog}
         onStartTreatment={handleStartTreatment}
         onFinishTreatment={handleFinishTreatment}
+        onUpdateDog={handleUpdateDog}
+        onDeleteDog={handleDeleteDog}
         onDeleteHistoryItem={handleDeleteHistoryItem}
         onLoadDemo={handleLoadDemo}
         onClearAll={handleClearAll}

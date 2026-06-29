@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, Smile, Scissors, Plus, Bone, Trash2, ArrowLeft, AlertCircle, Sparkles, Search, Check, FileText, Volume2, Settings } from 'lucide-react';
+import { Calendar, Clock, Smile, Scissors, Plus, Bone, Trash2, ArrowLeft, AlertCircle, Sparkles, Search, Check, FileText, Volume2, Settings, Edit2, Lock } from 'lucide-react';
 
 const COMMON_BREEDS = [
   'שיצו',
@@ -68,6 +68,8 @@ export default function AdminDashboard({
   onRegisterDog,
   onStartTreatment,
   onFinishTreatment,
+  onUpdateDog,
+  onDeleteDog,
   onDeleteHistoryItem,
   onLoadDemo,
   onClearAll,
@@ -82,6 +84,12 @@ export default function AdminDashboard({
   const [breedInput, setBreedInput] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  // Card editing & deleting states
+  const [editingDog, setEditingDog] = useState(null);
+  const [deletingDogId, setDeletingDogId] = useState(null);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteError, setDeleteError] = useState('');
   
   // Custom persistent breeds list
   const [availableBreeds, setAvailableBreeds] = useState(() => {
@@ -277,6 +285,18 @@ export default function AdminDashboard({
       img.src = event.target.result;
     };
     reader.readAsDataURL(file);
+  };
+
+  // Confirm and authorize card deletion with password
+  const handleConfirmDelete = () => {
+    if (deletePassword === '123123') {
+      onDeleteDog(deletingDogId);
+      setDeletingDogId(null);
+      setDeletePassword('');
+      setDeleteError('');
+    } else {
+      setDeleteError('סיסמה שגויה! המחיקה נחסמה.');
+    }
   };
 
   const getWaitingTimeMinutes = (arrivalTime) => {
@@ -635,7 +655,25 @@ export default function AdminDashboard({
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-3 justify-end shrink-0">
+                        <div className="flex items-center gap-3.5 justify-end shrink-0">
+                          {/* Edit button */}
+                          <button
+                            onClick={() => setEditingDog(dog)}
+                            className="text-slate-400 hover:text-indigo-600 p-2 rounded-xl hover:bg-slate-100 transition-all cursor-pointer"
+                            title="ערוך פרטי כלב"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+
+                          {/* Delete button (Requires admin password) */}
+                          <button
+                            onClick={() => setDeletingDogId(dog.id)}
+                            className="text-slate-400 hover:text-red-650 p-2 rounded-xl hover:bg-red-50 transition-all cursor-pointer"
+                            title="מחק כרטיס (דורש סיסמה)"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+
                           {dog.phone && (
                             <a
                               href={getWhatsAppUrl(dog.phone, dog.ownerName || 'לקוח יקר', dog.dogName)}
@@ -709,10 +747,28 @@ export default function AdminDashboard({
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-3 justify-end shrink-0">
-                          <div className="text-left font-mono font-bold text-slate-700 bg-slate-200/60 px-3 py-1 rounded-lg border border-slate-250 text-xs">
+                        <div className="flex items-center gap-3 justify-end shrink-0 text-left">
+                          <div className="font-mono font-bold text-slate-700 bg-slate-200/60 px-3 py-1.5 rounded-lg border border-slate-250 text-xs">
                             {formatActiveTime(dog.startTime)}
                           </div>
+
+                          {/* Edit button */}
+                          <button
+                            onClick={() => setEditingDog(dog)}
+                            className="text-slate-400 hover:text-indigo-600 p-2 rounded-xl hover:bg-slate-100 transition-all cursor-pointer"
+                            title="ערוך פרטי כלב"
+                          >
+                            <Edit2 className="w-4 h-4" />
+                          </button>
+
+                          {/* Delete button (Requires admin password) */}
+                          <button
+                            onClick={() => setDeletingDogId(dog.id)}
+                            className="text-slate-400 hover:text-red-655 p-2 rounded-xl hover:bg-red-50 transition-all cursor-pointer"
+                            title="מחק כרטיס (דורש סיסמה)"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
 
                           {dog.phone && (
                             <a
@@ -864,7 +920,7 @@ export default function AdminDashboard({
                           )}
                           <button
                             onClick={() => onDeleteHistoryItem(item.id)}
-                            className="text-slate-400 hover:text-red-650 p-1.5 rounded-lg hover:bg-red-50 transition-colors cursor-pointer"
+                            className="text-slate-400 hover:text-red-655 p-1.5 rounded-lg hover:bg-red-50 transition-colors cursor-pointer"
                             title="מחק לצמיתות מהארכיון"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -1015,7 +1071,7 @@ export default function AdminDashboard({
                       onClick={() => onPaletteChange(p.id)}
                       className={`w-full flex items-center justify-between p-2.5 rounded-xl border transition-all cursor-pointer text-right ${
                         isSelected
-                          ? 'border-purple-600 bg-purple-50/30 font-black shadow-xs'
+                          ? 'border-purple-650 bg-purple-50/30 font-black shadow-xs'
                           : 'border-slate-200 hover:bg-slate-50 font-bold'
                       }`}
                     >
@@ -1043,6 +1099,160 @@ export default function AdminDashboard({
               </button>
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* Edit Dog Card Modal (Popup Overlay) */}
+      {editingDog && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4" dir="rtl" onClick={() => setEditingDog(null)}>
+          <div 
+            className="bg-white rounded-3xl border border-slate-200 max-w-md w-full p-6 shadow-2xl space-y-4 animate-fade-in text-right"
+            onClick={(e) => e.stopPropagation()} // Prevent close on inner clicks
+          >
+            <h2 className="text-lg font-black text-slate-800 border-b border-slate-100 pb-3 flex items-center gap-1.5">
+              <Edit2 className="w-5 h-5 text-indigo-650" />
+              <span>עריכת כרטיס כלב</span>
+            </h2>
+            
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs font-bold text-slate-500 mb-1">שם הכלב *</label>
+                <input
+                  type="text"
+                  required
+                  value={editingDog.dogName}
+                  onChange={(e) => setEditingDog({ ...editingDog, dogName: e.target.value })}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-purple-500 focus:bg-white"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-500 mb-1">גזע</label>
+                <input
+                  type="text"
+                  value={editingDog.breed}
+                  onChange={(e) => setEditingDog({ ...editingDog, breed: e.target.value })}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-purple-500 focus:bg-white"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-500 mb-1">שם הבעלים</label>
+                <input
+                  type="text"
+                  value={editingDog.ownerName}
+                  onChange={(e) => setEditingDog({ ...editingDog, ownerName: e.target.value })}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-purple-500 focus:bg-white"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-500 mb-1">מספר טלפון</label>
+                <input
+                  type="tel"
+                  value={editingDog.phone}
+                  onChange={(e) => setEditingDog({ ...editingDog, phone: e.target.value })}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-purple-500 focus:bg-white text-left font-mono"
+                  dir="ltr"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-500 mb-1">הערות לטיפול</label>
+                <textarea
+                  rows="2"
+                  value={editingDog.notes || ''}
+                  onChange={(e) => setEditingDog({ ...editingDog, notes: e.target.value })}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-purple-500 focus:bg-white resize-none"
+                />
+              </div>
+            </div>
+
+            <div className="pt-3 border-t border-slate-100 flex items-center gap-2 justify-end">
+              <button
+                type="button"
+                onClick={() => setEditingDog(null)}
+                className="py-2 px-4 border border-slate-200 text-slate-500 text-xs font-bold rounded-xl hover:bg-slate-50 transition-all cursor-pointer"
+              >
+                ביטול
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!editingDog.dogName.trim()) return;
+                  onUpdateDog(editingDog);
+                  setEditingDog(null);
+                }}
+                className={`py-2 px-6 text-white text-xs font-extrabold rounded-xl transition-all cursor-pointer ${palette.primaryBg}`}
+              >
+                שמור שינויים 💾
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Dog Authorization Modal (Popup Overlay) */}
+      {deletingDogId && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4" dir="rtl" onClick={() => {
+          setDeletingDogId(null);
+          setDeletePassword('');
+          setDeleteError('');
+        }}>
+          <div 
+            className="bg-white rounded-3xl border border-slate-200 max-w-sm w-full p-6 shadow-2xl space-y-4 animate-fade-in text-right"
+            onClick={(e) => e.stopPropagation()} // Prevent close on inner clicks
+          >
+            <div className="flex items-center gap-2 text-red-655 border-b border-slate-100 pb-3">
+              <Lock className="w-5 h-5" />
+              <h2 className="text-lg font-black">מחיקת כרטיס כלב מהתור</h2>
+            </div>
+
+            <p className="text-xs text-slate-500 leading-relaxed font-semibold">
+              מחיקת כרטיס כלב מהמערכת היא פעולה לצמיתות. אנא הזן את סיסמת המנהל לאישור המחיקה:
+            </p>
+
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-slate-500">סיסמת מנהל *</label>
+              <input
+                type="password"
+                placeholder="הזן סיסמת מנהל..."
+                value={deletePassword}
+                onChange={(e) => {
+                  setDeletePassword(e.target.value);
+                  setDeleteError('');
+                }}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-900 focus:outline-none focus:border-red-500 focus:bg-white text-center font-mono font-bold"
+                autoFocus
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleConfirmDelete();
+                }}
+              />
+              {deleteError && (
+                <p className="text-red-500 text-[10px] font-bold flex items-center gap-1 animate-pulse">
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                  <span>{deleteError}</span>
+                </p>
+              )}
+            </div>
+
+            <div className="pt-3 border-t border-slate-100 flex items-center gap-2 justify-end">
+              <button
+                type="button"
+                onClick={() => {
+                  setDeletingDogId(null);
+                  setDeletePassword('');
+                  setDeleteError('');
+                }}
+                className="py-2 px-4 border border-slate-200 text-slate-500 text-xs font-bold rounded-xl hover:bg-slate-50 transition-all cursor-pointer"
+              >
+                ביטול
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                className="py-2 px-6 bg-red-655 hover:bg-red-755 text-white text-xs font-extrabold rounded-xl transition-all cursor-pointer shadow-md shadow-red-100"
+              >
+                אשר מחיקה 🗑️
+              </button>
+            </div>
           </div>
         </div>
       )}
