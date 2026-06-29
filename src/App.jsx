@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import TvDisplay from './components/TvDisplay';
 import AdminDashboard from './components/AdminDashboard';
 import AdminLogin from './components/AdminLogin';
@@ -242,6 +242,10 @@ export default function App() {
     return sessionStorage.getItem('grooming_admin_authenticated') === 'true';
   });
 
+  // Refs to prevent recursive write/sync feedback loops
+  const isSyncingDogsRef = useRef(false);
+  const isSyncingHistoryRef = useRef(false);
+
   useEffect(() => {
     const handleLocationChange = () => {
       setCurrentPath(window.location.pathname);
@@ -276,11 +280,20 @@ export default function App() {
     }
   });
 
+  // Local state changes trigger localStorage updates (skipped if updated via cross-tab sync)
   useEffect(() => {
+    if (isSyncingDogsRef.current) {
+      isSyncingDogsRef.current = false;
+      return;
+    }
     localStorage.setItem('grooming_dogs_queue', JSON.stringify(dogs));
   }, [dogs]);
 
   useEffect(() => {
+    if (isSyncingHistoryRef.current) {
+      isSyncingHistoryRef.current = false;
+      return;
+    }
     localStorage.setItem('grooming_history', JSON.stringify(history));
   }, [history]);
 
@@ -289,14 +302,18 @@ export default function App() {
     const handleStorageChange = (e) => {
       if (e.key === 'grooming_dogs_queue') {
         try {
-          setDogs(e.newValue ? JSON.parse(e.newValue) : []);
+          const parsed = e.newValue ? JSON.parse(e.newValue) : [];
+          isSyncingDogsRef.current = true;
+          setDogs(parsed);
         } catch (err) {
           console.error('Failed to sync grooming_dogs_queue from another tab', err);
         }
       }
       if (e.key === 'grooming_history') {
         try {
-          setHistory(e.newValue ? JSON.parse(e.newValue) : []);
+          const parsed = e.newValue ? JSON.parse(e.newValue) : [];
+          isSyncingHistoryRef.current = true;
+          setHistory(parsed);
         } catch (err) {
           console.error('Failed to sync grooming_history from another tab', err);
         }
@@ -317,6 +334,39 @@ export default function App() {
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
+
+  // Backup active polling interval (runs every 800ms) to guarantee instant update on all tabs/setups
+  useEffect(() => {
+    const interval = setInterval(() => {
+      try {
+        const rawDogs = localStorage.getItem('grooming_dogs_queue');
+        if (rawDogs) {
+          const currentDogsStr = JSON.stringify(dogs);
+          if (rawDogs !== currentDogsStr) {
+            isSyncingDogsRef.current = true;
+            setDogs(JSON.parse(rawDogs));
+          }
+        }
+      } catch (e) {
+        console.error('Failed to poll dogs queue', e);
+      }
+
+      try {
+        const rawHistory = localStorage.getItem('grooming_history');
+        if (rawHistory) {
+          const currentHistoryStr = JSON.stringify(history);
+          if (rawHistory !== currentHistoryStr) {
+            isSyncingHistoryRef.current = true;
+            setHistory(JSON.parse(rawHistory));
+          }
+        }
+      } catch (e) {
+        console.error('Failed to poll history', e);
+      }
+    }, 800);
+
+    return () => clearInterval(interval);
+  }, [dogs, history]);
 
   const handleRegisterDog = (newDog) => {
     const dogWithId = {
