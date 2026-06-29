@@ -72,7 +72,7 @@ export default function TvDisplay({ dogs, palette, businessAddress, logoUrl, nav
 
   return (
     <div 
-      className={`flex flex-col min-h-screen lg:h-screen lg:overflow-hidden bg-gradient-to-br ${palette.bgClass} p-4 md:p-8 select-none relative overflow-hidden`}
+      className={`flex flex-col min-h-screen lg:h-screen lg:overflow-hidden bg-gradient-to-br ${palette.bgClass} p-4 md:p-8 select-none relative`}
     >
       {/* Decorative background illustrations (bubbles/blobs) for dog salon atmosphere */}
       <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-indigo-150/10 rounded-full filter blur-3xl -z-10 pointer-events-none" />
@@ -131,7 +131,7 @@ export default function TvDisplay({ dogs, palette, businessAddress, logoUrl, nav
               <span>{formatHeaderTime(currentDate)}</span>
             </div>
             <div className={`hidden md:flex flex-col text-[10px] font-bold leading-tight ${
-              palette.isDark ? 'text-slate-450' : 'text-slate-450'
+              palette.isDark ? 'text-slate-455 font-bold' : 'text-slate-455'
             }`}>
               <span>{formatHeaderDate(currentDate)}</span>
             </div>
@@ -169,8 +169,8 @@ export default function TvDisplay({ dogs, palette, businessAddress, logoUrl, nav
               ))}
             </div>
 
-            {/* Mobile / Tablet fallback scrollable view */}
-            <div className="grid lg:hidden grid-cols-1 md:grid-cols-2 gap-6 overflow-y-auto max-h-[70vh] pb-4">
+            {/* Mobile / Tablet view (natural scrolling landing page gallery) */}
+            <div className="grid lg:hidden grid-cols-1 md:grid-cols-2 gap-6 pb-6">
               {dogs.map((dog) => (
                 <DogCard key={dog.id} dog={dog} compact={activeCount > 2} isDark={palette.isDark} />
               ))}

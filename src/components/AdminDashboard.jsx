@@ -527,10 +527,10 @@ export default function AdminDashboard({
       </header>
 
       {/* Main Grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
+      <div className="flex flex-col xl:grid xl:grid-cols-12 gap-8 items-start">
         
         {/* RIGHT COLUMN: REGISTRATION & DEMO ACTIONS (4 cols) */}
-        <div className="xl:col-span-4 space-y-6">
+        <div className="w-full order-2 xl:order-none xl:col-span-4 space-y-6">
           
           {/* Register Card — collapsible */}
           <div className={`rounded-3xl border shadow-md overflow-hidden transition-all ${palette.isDark ? 'bg-slate-900/80 border-slate-850 text-slate-100' : 'bg-white border-slate-200/80 text-slate-800'}`}>
@@ -742,7 +742,7 @@ export default function AdminDashboard({
         </div>
 
         {/* LEFT COLUMN: QUEUES (8 cols) */}
-        <div className="xl:col-span-8 space-y-6">
+        <div className="w-full order-1 xl:order-none xl:col-span-8 space-y-6">
           
           {/* Waiting Queue */}
           <div className={`rounded-3xl border p-6 shadow-md ${palette.isDark ? 'bg-slate-900/80 border-slate-855 text-slate-100' : 'bg-white border-slate-200/80 text-slate-800'}`}>
