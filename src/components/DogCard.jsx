@@ -131,6 +131,29 @@ export default function DogCard({ dog, compact = false, isDark = false }) {
             </span>
           )}
         </div>
+
+        {/* Owner Name */}
+        {dog.ownerName && (
+          <div className={`font-bold ${
+            isDark ? 'text-slate-400' : 'text-slate-500'
+          } ${compact ? 'text-[10px] mt-0.5' : 'text-xs mt-1'}`}>
+            בעלים: <span className={isDark ? 'text-slate-200' : 'text-slate-700'}>{dog.ownerName}</span>
+          </div>
+        )}
+
+        {/* Special Notes */}
+        {dog.notes && (
+          <div className={`rounded-xl border transition-all ${
+            isDark 
+              ? 'bg-slate-950/45 border-slate-850/80 text-slate-350' 
+              : 'bg-slate-50/70 border-slate-100 text-slate-600'
+          } ${
+            compact ? 'p-2 text-[10px] mt-2 line-clamp-1' : 'p-3 text-xs mt-3 line-clamp-2'
+          }`} title={dog.notes}>
+            <span className="font-extrabold text-[9px] block opacity-75 mb-0.5">דגשי טיפול:</span>
+            {dog.notes}
+          </div>
+        )}
       </div>
 
       {/* Live Stopwatch */}
