@@ -33,11 +33,13 @@ const SOUND_PRESETS = [
 ];
 
 const PALETTES_PREVIEW = [
-  { id: 'cream_classic', name: 'שמנת קלאסית 🐶 (JOY & POLA)', color1: '#faf9f2', color2: '#1e3a8a' },
-  { id: 'sunset_pink', name: 'ורוד שקיעה תל אביבית 🌸', color1: '#fff5f6', color2: '#e11d48' },
-  { id: 'pistachio_chic', name: 'פיסטוק ורוד שיק 🌿', color1: '#f4f7f0', color2: '#065f46' },
-  { id: 'lavender_dreams', name: 'לבנדר חלומות 🍇', color1: '#f7f4fc', color2: '#6d28d9' },
-  { id: 'vibrant_coral', name: 'קורל תפוז תוסס 🍊', color1: '#fffbf7', color2: '#ea580c' }
+  { id: 'cream_classic', name: 'שמנת קלאסית 🐶 (JOY & POLA)', color1: '#faf9f2', color2: '#1e3a8a', color3: '#f59e0b' },
+  { id: 'sunset_pink', name: 'ורוד שקיעה תל אביבית 🌸', color1: '#fff5f6', color2: '#e11d48', color3: '#8b5cf6' },
+  { id: 'pistachio_chic', name: 'פיסטוק ורוד שיק 🌿', color1: '#f4f7f0', color2: '#065f46', color3: '#ec4899' },
+  { id: 'lavender_dreams', name: 'לבנדר חלומות 🍇', color1: '#f7f4fc', color2: '#6d28d9', color3: '#14b8a6' },
+  { id: 'vibrant_coral', name: 'קורל תפוז תוסס 🍊', color1: '#fffbf7', color2: '#ea580c', color3: '#eab308' },
+  { id: 'neon_night', name: 'לילה תל אביבי 🌃 (כהה)', color1: '#090d16', color2: '#d946ef', color3: '#fbbf24' },
+  { id: 'forest_dark', name: 'פיסטוק יער כהה 🌲 (כהה)', color1: '#070c09', color2: '#10b981', color3: '#fb7185' }
 ];
 
 const WhatsAppIcon = () => (
@@ -409,7 +411,7 @@ export default function AdminDashboard({
               <span>ממשק ניהול - JOY 🐶 POLA</span>
               <Bone className={`w-5 h-5 rotate-12 ${palette.accentText}`} />
             </h1>
-            <p className="text-slate-655 text-xs font-bold mt-1.5">
+            <p className={`${palette.isDark ? 'text-slate-350' : 'text-slate-655'} text-xs font-bold mt-1.5`}>
               {businessAddress || 'אבן גבירול 163, תל אביב'} • ניהול תורים, צלילי התראה חזקים ומעוצבים (שעון מעורר) וחריגות זמן
             </p>
           </div>
@@ -421,7 +423,7 @@ export default function AdminDashboard({
           {/* Settings Trigger Button */}
           <button
             onClick={() => setIsSettingsOpen(true)}
-            className="flex items-center gap-1.5 bg-white hover:bg-slate-100 text-slate-700 py-2.5 px-4 rounded-xl border border-slate-200 shadow-xs transition-all cursor-pointer text-xs font-bold"
+            className={`${palette.isDark ? 'bg-slate-900 border-slate-800 text-slate-200 hover:bg-slate-800' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100'} flex items-center gap-1.5 py-2.5 px-4 rounded-xl border shadow-xs transition-all cursor-pointer text-xs font-bold`}
             title="פתר פאנל הגדרות מערכת וצבעים"
           >
             <Settings className="w-4 h-4 ml-1 text-slate-500" />
@@ -429,16 +431,16 @@ export default function AdminDashboard({
           </button>
 
           {/* Sound Selector Dropdown */}
-          <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl px-3 py-1.5 shadow-xs">
-            <Volume2 className="w-4 h-4 text-purple-650" />
+          <div className={`flex items-center gap-1.5 border rounded-xl px-3 py-1.5 shadow-xs ${palette.isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+            <Volume2 className="w-4 h-4 text-purple-600" />
             <label className="text-[10px] font-bold text-slate-500">צליל מעורר:</label>
             <select
               value={selectedSound}
               onChange={handleSoundChange}
-              className="text-xs text-slate-700 font-bold bg-transparent border-0 focus:outline-none cursor-pointer pr-1"
+              className={`text-xs font-bold bg-transparent border-0 focus:outline-none cursor-pointer pr-1 ${palette.isDark ? 'text-slate-300' : 'text-slate-700'}`}
             >
               {SOUND_PRESETS.map((preset) => (
-                <option key={preset.id} value={preset.id}>
+                <option key={preset.id} value={preset.id} className={palette.isDark ? 'bg-slate-950 text-slate-300' : 'bg-white text-slate-750'}>
                   {preset.name}
                 </option>
               ))}
@@ -448,7 +450,7 @@ export default function AdminDashboard({
           {/* Test Sound Button */}
           <button
             onClick={() => onTriggerSound(selectedSound)}
-            className="flex items-center gap-1.5 bg-white hover:bg-slate-100 text-slate-655 py-2.5 px-4 rounded-xl border border-slate-200 shadow-xs transition-all cursor-pointer text-xs font-bold"
+            className={`${palette.isDark ? 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800' : 'bg-white border-slate-200 text-slate-655 hover:bg-slate-100'} flex items-center gap-1.5 py-2.5 px-4 rounded-xl border shadow-xs transition-all cursor-pointer text-xs font-bold`}
             title="השמע בדיקה לצליל שבחרת"
           >
             <span>השמע בדיקה 🔊</span>
@@ -456,7 +458,7 @@ export default function AdminDashboard({
 
           <button
             onClick={() => navigate('/')}
-            className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 px-4 rounded-xl border border-slate-200 shadow-sm transition-all cursor-pointer text-xs font-bold"
+            className={`${palette.isDark ? 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-800' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'} flex items-center gap-1.5 py-2.5 px-4 rounded-xl border shadow-sm transition-all cursor-pointer text-xs font-bold`}
           >
             <ArrowLeft className="w-4 h-4 ml-1.5" />
             <span>מעבר למסך ציבורי (טלוויזיה)</span>
@@ -471,9 +473,9 @@ export default function AdminDashboard({
         <div className="xl:col-span-4 space-y-6">
           
           {/* Register Card */}
-          <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-md">
-            <h2 className="text-lg font-black text-slate-800 border-b border-slate-100 pb-3 mb-5 flex items-center gap-2">
-              <Plus className="w-5 h-5 text-purple-650" />
+          <div className={`rounded-3xl border p-6 shadow-md ${palette.isDark ? 'bg-slate-900/80 border-slate-850 text-slate-100' : 'bg-white border-slate-200/80 text-slate-800'}`}>
+            <h2 className="text-lg font-black border-b border-slate-100/10 pb-3 mb-5 flex items-center gap-2">
+              <Plus className="w-5 h-5 text-purple-600" />
               <span>רישום לקוח חדש שהגיע</span>
             </h2>
             
@@ -486,7 +488,11 @@ export default function AdminDashboard({
                   placeholder="הקלד את שם הכלב..."
                   value={dogName}
                   onChange={(e) => setDogName(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:bg-white font-medium transition-all text-sm"
+                  className={`w-full border rounded-xl px-4 py-2.5 placeholder-slate-400 focus:outline-none focus:border-purple-500 font-medium transition-all text-sm ${
+                    palette.isDark
+                      ? 'bg-slate-800/60 border-slate-750 text-slate-100 focus:bg-slate-800'
+                      : 'bg-slate-50 border-slate-200 text-slate-900 focus:bg-white'
+                  }`}
                 />
               </div>
 
@@ -497,7 +503,11 @@ export default function AdminDashboard({
                   placeholder="שם הבעלים..."
                   value={ownerName}
                   onChange={(e) => setOwnerName(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:bg-white font-medium transition-all text-sm"
+                  className={`w-full border rounded-xl px-4 py-2.5 placeholder-slate-400 focus:outline-none focus:border-purple-500 font-medium transition-all text-sm ${
+                    palette.isDark
+                      ? 'bg-slate-800/60 border-slate-750 text-slate-100 focus:bg-slate-800'
+                      : 'bg-slate-50 border-slate-200 text-slate-900 focus:bg-white'
+                  }`}
                 />
               </div>
 
@@ -508,7 +518,11 @@ export default function AdminDashboard({
                   placeholder="לדוגמה: 052-1234567"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:bg-white font-mono font-medium transition-all text-sm text-left"
+                  className={`w-full border rounded-xl px-4 py-2.5 placeholder-slate-400 focus:outline-none focus:border-purple-500 font-mono font-medium transition-all text-sm text-left ${
+                    palette.isDark
+                      ? 'bg-slate-800/60 border-slate-750 text-slate-100 focus:bg-slate-800'
+                      : 'bg-slate-50 border-slate-200 text-slate-900 focus:bg-white'
+                  }`}
                   dir="ltr"
                 />
               </div>
@@ -527,7 +541,11 @@ export default function AdminDashboard({
                         setIsDropdownOpen(true);
                       }}
                       onFocus={() => setIsDropdownOpen(true)}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl pr-4 pl-10 py-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:bg-white font-medium transition-all text-sm"
+                      className={`w-full border rounded-xl pr-4 pl-10 py-2.5 placeholder-slate-400 focus:outline-none focus:border-purple-500 font-medium transition-all text-sm ${
+                        palette.isDark
+                          ? 'bg-slate-800/60 border-slate-750 text-slate-100 focus:bg-slate-800'
+                          : 'bg-slate-50 border-slate-200 text-slate-900 focus:bg-white'
+                      }`}
                     />
                     <Search className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
                   </div>
@@ -551,7 +569,7 @@ export default function AdminDashboard({
                 {isDropdownOpen && (
                   <>
                     <div className="fixed inset-0 z-10" onClick={() => setIsDropdownOpen(false)} />
-                    <ul className="absolute z-20 w-full mt-1.5 bg-white border border-slate-200 rounded-xl shadow-xl max-h-52 overflow-y-auto divide-y divide-slate-50">
+                    <ul className={`absolute z-20 w-full mt-1.5 border rounded-xl shadow-xl max-h-52 overflow-y-auto divide-y ${palette.isDark ? 'bg-slate-900 border-slate-800 divide-slate-800' : 'bg-white border-slate-200 divide-slate-50'}`}>
                       {filteredBreeds.length === 0 ? (
                         <li className="p-3 text-xs text-slate-450 italic">
                           אין גזע תואם. הקלד גזע מותאם אישית...
@@ -561,7 +579,7 @@ export default function AdminDashboard({
                           <li
                             key={breed}
                             onClick={() => handleSelectBreed(breed)}
-                            className="p-3 text-sm text-slate-700 hover:bg-purple-50 hover:text-purple-700 cursor-pointer flex items-center justify-between transition-colors"
+                            className={`p-3 text-sm cursor-pointer flex items-center justify-between transition-colors ${palette.isDark ? 'text-slate-200 hover:bg-slate-800' : 'text-slate-700 hover:bg-purple-50 hover:text-purple-700'}`}
                           >
                             <span>{breed}</span>
                             {breedInput === breed && <Check className="w-4 h-4 text-purple-650" />}
@@ -581,7 +599,11 @@ export default function AdminDashboard({
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   rows="2"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:bg-white font-medium transition-all text-sm resize-none"
+                  className={`w-full border rounded-xl px-4 py-2.5 placeholder-slate-400 focus:outline-none focus:border-purple-500 font-medium transition-all text-sm resize-none ${
+                    palette.isDark
+                      ? 'bg-slate-800/60 border-slate-750 text-slate-100 focus:bg-slate-800'
+                      : 'bg-slate-50 border-slate-200 text-slate-900 focus:bg-white'
+                  }`}
                 />
               </div>
 
@@ -596,23 +618,17 @@ export default function AdminDashboard({
           </div>
 
           {/* Demo Actions */}
-          <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-md space-y-4">
-            <h2 className="text-sm font-black text-slate-800 border-b border-slate-100 pb-2 flex items-center gap-1.5">
+          <div className={`rounded-3xl border p-6 shadow-md ${palette.isDark ? 'bg-slate-900/80 border-slate-850 text-slate-100' : 'bg-white border-slate-200/80 text-slate-800'}`}>
+            <h2 className="text-sm font-black border-b border-slate-100/10 pb-2 flex items-center gap-1.5">
               <Sparkles className="w-4 h-4 text-amber-500" />
               <span>סימולציות דמו מהירות לטלוויזיה ולתור</span>
             </h2>
-            <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="grid grid-cols-1 gap-2 text-xs">
               <button
                 onClick={onLoadDemo}
-                className="bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 p-2.5 rounded-lg font-bold transition-all cursor-pointer text-center"
+                className="bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-indigo-400 p-2.5 rounded-lg font-bold transition-all cursor-pointer text-center"
               >
                 טען סימולציה מלאה
-              </button>
-              <button
-                onClick={onClearAll}
-                className="bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-655 p-2.5 rounded-lg font-bold transition-all cursor-pointer text-center"
-              >
-                נקה את כל הנתונים
               </button>
             </div>
           </div>
@@ -622,8 +638,8 @@ export default function AdminDashboard({
         <div className="xl:col-span-8 space-y-6">
           
           {/* Waiting Queue */}
-          <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-md">
-            <h2 className="text-lg font-black text-slate-855 border-b border-slate-100 pb-3 mb-4 flex items-center justify-between">
+          <div className={`rounded-3xl border p-6 shadow-md ${palette.isDark ? 'bg-slate-900/80 border-slate-850 text-slate-100' : 'bg-white border-slate-200/80 text-slate-800'}`}>
+            <h2 className="text-lg font-black border-b border-slate-100/10 pb-3 mb-4 flex items-center justify-between">
               <span className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
                 <span>תור הממתינים לתספורת ({waitingDogs.length})</span>
@@ -634,7 +650,7 @@ export default function AdminDashboard({
             {waitingDogs.length === 0 ? (
               <p className="text-slate-400 text-sm italic py-8 text-center">אין כלבים ממתינים כרגע</p>
             ) : (
-              <div className="divide-y divide-slate-100 overflow-y-auto max-h-72 pr-1 space-y-3.5">
+              <div className="divide-y divide-slate-150/10 overflow-y-auto max-h-72 pr-1 space-y-3.5">
                 {waitingDogs.map((dog) => {
                   const waitMinutes = getWaitingTimeMinutes(dog.arrivalTime);
                   const isAlert = waitMinutes >= 20;
@@ -644,26 +660,28 @@ export default function AdminDashboard({
                       key={dog.id}
                       className={`flex flex-col p-4 rounded-2xl border transition-all duration-300 gap-3 ${
                         isAlert
-                          ? 'bg-rose-50/70 border-rose-300 animate-pulse-rose shadow-sm shadow-rose-50'
+                          ? 'bg-rose-500/10 border-rose-500/30 shadow-xs'
+                          : palette.isDark
+                          ? 'bg-slate-950/60 border-slate-850'
                           : 'bg-slate-50/50 border-slate-150'
                       }`}
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div className="text-right">
                           <div className="flex items-center gap-2">
-                            <span className="font-black text-slate-855 text-base">{dog.dogName}</span>
-                            <span className="text-xs font-bold bg-indigo-50 text-indigo-700 py-0.5 px-2 rounded-lg border border-indigo-100">
+                            <span className="font-black text-base">{dog.dogName}</span>
+                            <span className={`text-xs font-bold py-0.5 px-2 rounded-lg border ${palette.isDark ? 'bg-indigo-950/50 border-indigo-900/60 text-indigo-300' : 'bg-indigo-50 border-indigo-100 text-indigo-700'}`}>
                               {dog.breed}
                             </span>
                             {isAlert && (
-                              <span className="flex items-center gap-1 bg-rose-100 border border-rose-250 text-rose-800 text-[10px] font-black py-0.5 px-2 rounded-md animate-pulse">
+                              <span className="flex items-center gap-1 bg-rose-500/20 border border-rose-500/40 text-rose-300 text-[10px] font-black py-0.5 px-2 rounded-md animate-pulse">
                                 <AlertCircle className="w-3 h-3" />
                                 <span>המתנה חריגה! ({waitMinutes} דק')</span>
                               </span>
                             )}
                           </div>
                           
-                          <div className="text-xs text-slate-500 mt-1 font-medium space-x-2 space-x-reverse">
+                          <div className={`text-xs mt-1 font-medium space-x-2 space-x-reverse ${palette.isDark ? 'text-slate-400' : 'text-slate-550'}`}>
                             <span>בעלים: {dog.ownerName || 'לא צוין'}</span>
                             <span>•</span>
                             <span className="font-mono">{dog.phone || 'אין טלפון'}</span>
@@ -676,7 +694,7 @@ export default function AdminDashboard({
                           {/* Edit button */}
                           <button
                             onClick={() => setEditingDog(dog)}
-                            className="text-slate-450 hover:text-indigo-650 p-2 rounded-xl hover:bg-slate-100 transition-all cursor-pointer"
+                            className={`p-2 rounded-xl transition-all cursor-pointer ${palette.isDark ? 'text-slate-450 hover:text-indigo-400 hover:bg-slate-800' : 'text-slate-400 hover:text-indigo-600 hover:bg-slate-100'}`}
                             title="ערוך פרטי כלב"
                           >
                             <Edit2 className="w-4 h-4" />
@@ -685,7 +703,7 @@ export default function AdminDashboard({
                           {/* Delete button (Requires admin password) */}
                           <button
                             onClick={() => setDeletingDogId(dog.id)}
-                            className="text-slate-455 hover:text-red-650 p-2 rounded-xl hover:bg-red-50 transition-all cursor-pointer"
+                            className={`p-2 rounded-xl transition-all cursor-pointer ${palette.isDark ? 'text-slate-455 hover:text-red-400 hover:bg-slate-800' : 'text-slate-400 hover:text-red-650 hover:bg-red-50'}`}
                             title="מחק כרטיס (דורש סיסמה)"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -695,7 +713,11 @@ export default function AdminDashboard({
                             /* Send tracking link button */
                             <button
                               onClick={() => handleSendTrackingLink(dog)}
-                              className="bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 p-2.5 rounded-xl transition-all shadow-xs flex items-center justify-center cursor-pointer gap-1 text-xs font-bold"
+                              className={`p-2.5 rounded-xl border transition-all shadow-xs flex items-center justify-center cursor-pointer gap-1 text-xs font-bold ${
+                                palette.isDark
+                                  ? 'bg-slate-900 border-slate-800 text-indigo-400 hover:bg-slate-800'
+                                  : 'bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100'
+                              }`}
                               title="שלח קישור מעקב לייב ללקוח"
                             >
                               <Eye className="w-4 h-4" />
@@ -726,7 +748,11 @@ export default function AdminDashboard({
                       </div>
 
                       {dog.notes && (
-                        <div className="text-xs text-indigo-900 bg-indigo-50/50 border border-indigo-100/50 rounded-xl py-2 px-3 flex items-start gap-1.5 mt-0.5">
+                        <div className={`text-xs rounded-xl py-2 px-3 flex items-start gap-1.5 mt-0.5 border ${
+                          palette.isDark 
+                            ? 'bg-slate-950/80 border-slate-850 text-indigo-200' 
+                            : 'bg-indigo-50/50 border-indigo-100/50 text-indigo-950'
+                        }`}>
                           <FileText className="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" />
                           <div>
                             <span className="font-bold">הערות לטיפול:</span> {dog.notes}
@@ -741,8 +767,8 @@ export default function AdminDashboard({
           </div>
 
           {/* Active Treatments */}
-          <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-md">
-            <h2 className="text-lg font-black text-slate-800 border-b border-slate-100 pb-3 mb-4 flex items-center justify-between">
+          <div className={`rounded-3xl border p-6 shadow-md ${palette.isDark ? 'bg-slate-900/80 border-slate-850 text-slate-100' : 'bg-white border-slate-200/80 text-slate-800'}`}>
+            <h2 className="text-lg font-black border-b border-slate-100/10 pb-3 mb-4 flex items-center justify-between">
               <span className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
                 <span>טיפולים פעילים על מסך הטלוויזיה ({activeDogs.length})</span>
@@ -753,22 +779,24 @@ export default function AdminDashboard({
             {activeDogs.length === 0 ? (
               <p className="text-slate-400 text-sm italic py-8 text-center">אין כלבים בטיפול כרגע</p>
             ) : (
-              <div className="divide-y divide-slate-100 overflow-y-auto max-h-80 pr-1 space-y-3.5">
+              <div className="divide-y divide-slate-150/10 overflow-y-auto max-h-80 pr-1 space-y-3.5">
                 {activeDogs.map((dog) => {
                   return (
                     <div
                       key={dog.id}
-                      className="flex flex-col p-4 bg-slate-50/50 border border-slate-150 rounded-2xl gap-3"
+                      className={`flex flex-col p-4 border rounded-2xl gap-3 ${
+                        palette.isDark ? 'bg-slate-950/60 border-slate-855' : 'bg-slate-50/50 border-slate-150'
+                      }`}
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div className="text-right">
                           <div className="flex items-center gap-2">
-                            <span className="font-black text-slate-855 text-base">{dog.dogName}</span>
-                            <span className="text-xs font-bold bg-indigo-50 text-indigo-700 py-0.5 px-2 rounded-lg border border-indigo-100">
+                            <span className="font-black text-base">{dog.dogName}</span>
+                            <span className={`text-xs font-bold py-0.5 px-2 rounded-lg border ${palette.isDark ? 'bg-indigo-950/50 border-indigo-900/60 text-indigo-300' : 'bg-indigo-50 border-indigo-100 text-indigo-700'}`}>
                               {dog.breed}
                             </span>
                           </div>
-                          <div className="text-xs text-slate-500 mt-1 font-medium space-x-2 space-x-reverse">
+                          <div className={`text-xs mt-1 font-medium space-x-2 space-x-reverse ${palette.isDark ? 'text-slate-400' : 'text-slate-550'}`}>
                             <span>בעלים: {dog.ownerName || 'לא צוין'}</span>
                             <span>•</span>
                             <span className="font-mono">{dog.phone || 'אין טלפון'}</span>
@@ -778,14 +806,16 @@ export default function AdminDashboard({
                         </div>
 
                         <div className="flex flex-wrap items-center gap-2 justify-end shrink-0 text-left">
-                          <div className="font-mono font-bold text-slate-700 bg-slate-200/60 px-3 py-2.5 rounded-lg border border-slate-250 text-xs">
+                          <div className={`font-mono font-bold px-3 py-2.5 rounded-lg border text-xs ${
+                            palette.isDark ? 'bg-slate-900 border-slate-800 text-slate-300' : 'bg-slate-200/60 border-slate-250 text-slate-700'
+                          }`}>
                             {formatActiveTime(dog.startTime)}
                           </div>
 
                           {/* Edit button */}
                           <button
                             onClick={() => setEditingDog(dog)}
-                            className="text-slate-450 hover:text-indigo-600 p-2 rounded-xl hover:bg-slate-100 transition-all cursor-pointer"
+                            className={`p-2 rounded-xl transition-all cursor-pointer ${palette.isDark ? 'text-slate-450 hover:text-indigo-450 hover:bg-slate-800' : 'text-slate-400 hover:text-indigo-650 hover:bg-slate-100'}`}
                             title="ערוך פרטי כלב"
                           >
                             <Edit2 className="w-4 h-4" />
@@ -794,7 +824,7 @@ export default function AdminDashboard({
                           {/* Delete button (Requires admin password) */}
                           <button
                             onClick={() => setDeletingDogId(dog.id)}
-                            className="text-slate-455 hover:text-red-655 p-2 rounded-xl hover:bg-red-50 transition-all cursor-pointer"
+                            className={`p-2 rounded-xl transition-all cursor-pointer ${palette.isDark ? 'text-slate-455 hover:text-red-455 hover:bg-slate-800' : 'text-slate-400 hover:text-red-655 hover:bg-red-50'}`}
                             title="מחק כרטיס (דורש סיסמה)"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -804,7 +834,11 @@ export default function AdminDashboard({
                             /* Send tracking link button */
                             <button
                               onClick={() => handleSendTrackingLink(dog)}
-                              className="bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 p-2.5 rounded-xl transition-all shadow-xs flex items-center justify-center cursor-pointer gap-1 text-xs font-bold"
+                              className={`p-2.5 rounded-xl border transition-all shadow-xs flex items-center justify-center cursor-pointer gap-1 text-xs font-bold ${
+                                palette.isDark
+                                  ? 'bg-slate-900 border-slate-800 text-indigo-400 hover:bg-slate-800'
+                                  : 'bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100'
+                              }`}
                               title="שלח קישור מעקב לייב ללקוח"
                             >
                               <Eye className="w-4 h-4" />
@@ -826,7 +860,7 @@ export default function AdminDashboard({
 
                           <button
                             onClick={() => onFinishTreatment(dog.id)}
-                            className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold px-4 py-2.5 rounded-xl text-xs transition-all cursor-pointer shadow-md shadow-emerald-50"
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold px-4 py-2.5 rounded-xl text-xs transition-all cursor-pointer shadow-md shadow-emerald-55"
                           >
                             סיום תספורת 🏁
                           </button>
@@ -834,7 +868,11 @@ export default function AdminDashboard({
                       </div>
 
                       {dog.notes && (
-                        <div className="text-xs text-indigo-900 bg-indigo-50/50 border border-indigo-100/50 rounded-xl py-2 px-3 flex items-start gap-1.5 mt-0.5">
+                        <div className={`text-xs rounded-xl py-2 px-3 flex items-start gap-1.5 mt-0.5 border ${
+                          palette.isDark 
+                            ? 'bg-slate-950/80 border-slate-855 text-indigo-200' 
+                            : 'bg-indigo-50/50 border-indigo-100/50 text-indigo-950'
+                        }`}>
                           <FileText className="w-4 h-4 text-indigo-500 shrink-0 mt-0.5" />
                           <div>
                             <span className="font-bold">הערות לטיפול:</span> {dog.notes}
@@ -854,11 +892,11 @@ export default function AdminDashboard({
 
       {/* FULL-WIDTH COLUMN: HISTORY TABLE */}
       <div className="grid grid-span-12 mt-8 z-10">
-        <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-md">
+        <div className={`rounded-3xl border p-6 shadow-md ${palette.isDark ? 'bg-slate-900/80 border-slate-850 text-slate-100' : 'bg-white border-slate-200/80 text-slate-800'}`}>
           
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between border-b border-slate-100 pb-4 mb-6 gap-4">
-            <h2 className="text-lg font-black text-slate-855 flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-indigo-650" />
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between border-b border-slate-150/15 pb-4 mb-6 gap-4">
+            <h2 className="text-lg font-black flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-indigo-500" />
               <span>ארכיון טיפולים והיסטוריית תספורות מלאה ({filteredHistory.length})</span>
             </h2>
             
@@ -869,7 +907,11 @@ export default function AdminDashboard({
                   placeholder="חיפוש חופשי / הערה..."
                   value={historySearch}
                   onChange={(e) => setHistorySearch(e.target.value)}
-                  className="bg-slate-50 border border-slate-200 rounded-xl pr-9 pl-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:bg-white w-48 font-medium transition-all"
+                  className={`border rounded-xl pr-9 pl-3 py-1.5 text-xs placeholder-slate-400 focus:outline-none focus:border-indigo-500 w-48 font-medium transition-all ${
+                    palette.isDark
+                      ? 'bg-slate-800/80 border-slate-750 text-slate-100'
+                      : 'bg-slate-50 border-slate-200 text-slate-800'
+                  }`}
                 />
                 <Search className="absolute right-3 top-2.5 w-3.5 h-3.5 text-slate-400" />
               </div>
@@ -878,22 +920,26 @@ export default function AdminDashboard({
                 <select
                   value={historyBreedFilter}
                   onChange={(e) => setHistoryBreedFilter(e.target.value)}
-                  className="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 text-xs text-slate-700 font-bold focus:outline-none focus:border-indigo-500 transition-all cursor-pointer"
+                  className={`border rounded-xl px-2.5 py-1.5 text-xs font-bold focus:outline-none focus:border-indigo-500 transition-all cursor-pointer ${
+                    palette.isDark
+                      ? 'bg-slate-800 border-slate-750 text-slate-300'
+                      : 'bg-slate-50 border-slate-200 text-slate-700'
+                  }`}
                 >
-                  <option value="">כל הגזעים ({uniqueBreedsInHistory.length})</option>
+                  <option value="" className={palette.isDark ? 'bg-slate-900 text-slate-300' : 'bg-white text-slate-700'}>כל הגזעים ({uniqueBreedsInHistory.length})</option>
                   {uniqueBreedsInHistory.map((breed) => (
-                    <option key={breed} value={breed}>{breed}</option>
+                    <option key={breed} value={breed} className={palette.isDark ? 'bg-slate-900 text-slate-300' : 'bg-white text-slate-700'}>{breed}</option>
                   ))}
                 </select>
               </div>
 
-              <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2 py-1">
+              <div className={`flex items-center gap-1.5 border rounded-xl px-2 py-1 ${palette.isDark ? 'bg-slate-800 border-slate-750' : 'bg-slate-50 border-slate-200'}`}>
                 <span className="text-[10px] font-bold text-slate-450">סינון תאריך:</span>
                 <input
                   type="date"
                   value={historyDateFilter}
                   onChange={(e) => setHistoryDateFilter(e.target.value)}
-                  className="text-xs text-slate-700 bg-transparent border-0 focus:outline-none font-sans font-bold cursor-pointer"
+                  className={`text-xs bg-transparent border-0 focus:outline-none font-sans font-bold cursor-pointer ${palette.isDark ? 'text-slate-300' : 'text-slate-700'}`}
                 />
                 {historyDateFilter && (
                   <button
@@ -913,10 +959,10 @@ export default function AdminDashboard({
               {history.length === 0 ? 'ארכיון הטיפולים ריק כרגע.' : 'לא נמצאו טיפולים התואמים את מסנני החיפוש.'}
             </div>
           ) : (
-            <div className="overflow-x-auto rounded-xl border border-slate-100">
+            <div className={`overflow-x-auto rounded-xl border ${palette.isDark ? 'border-slate-850' : 'border-slate-100'}`}>
               <table className="w-full text-right border-collapse text-xs">
                 <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200 text-slate-550 font-black">
+                  <tr className={`border-b font-black ${palette.isDark ? 'bg-slate-900 border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-550'}`}>
                     <th className="p-4">שם הכלב</th>
                     <th className="p-4">גזע</th>
                     <th className="p-4">שם הבעלים</th>
@@ -928,23 +974,23 @@ export default function AdminDashboard({
                     <th className="p-4 text-center">פעולות</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                <tbody className={`divide-y font-medium ${palette.isDark ? 'divide-slate-850 text-slate-300' : 'divide-slate-100 text-slate-700'}`}>
                   {filteredHistory.map((item) => (
-                    <tr key={item.id} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="p-4 font-bold text-slate-900">{item.dogName}</td>
+                    <tr key={item.id} className={`transition-colors ${palette.isDark ? 'hover:bg-slate-950/40' : 'hover:bg-slate-50/50'}`}>
+                      <td className={`p-4 font-bold ${palette.isDark ? 'text-slate-100' : 'text-slate-900'}`}>{item.dogName}</td>
                       <td className="p-4">
-                        <span className="bg-indigo-50 text-indigo-700 font-bold px-2 py-0.5 rounded border border-indigo-100">
+                        <span className={`font-bold px-2 py-0.5 rounded border ${palette.isDark ? 'bg-indigo-950/40 border-indigo-900 text-indigo-300' : 'bg-indigo-50 border-indigo-100 text-indigo-700'}`}>
                           {item.breed}
                         </span>
                       </td>
                       <td className="p-4">{item.ownerName || 'לא צוין'}</td>
                       <td className="p-4 text-left font-mono">{item.phone || 'אין'}</td>
                       <td className="p-4">{formatDate(item.endTime)}</td>
-                      <td className="p-4 font-mono text-slate-500">
+                      <td className="p-4 font-mono text-slate-450">
                         {formatTimeOfDay(item.startTime)} - {formatTimeOfDay(item.endTime)}
                       </td>
-                      <td className="p-4 text-indigo-650 font-bold">{formatDuration(item.durationSeconds)}</td>
-                      <td className="p-4 max-w-[220px] truncate text-slate-550 font-semibold italic" title={item.notes}>
+                      <td className="p-4 text-indigo-500 font-bold">{formatDuration(item.durationSeconds)}</td>
+                      <td className={`p-4 max-w-[220px] truncate font-semibold italic ${palette.isDark ? 'text-slate-400' : 'text-slate-550'}`} title={item.notes}>
                         {item.notes || '-'}
                       </td>
                       <td className="p-4">
@@ -962,7 +1008,9 @@ export default function AdminDashboard({
                           )}
                           <button
                             onClick={() => onDeleteHistoryItem(item.id)}
-                            className="text-slate-400 hover:text-red-655 p-1.5 rounded-lg hover:bg-red-50 transition-colors cursor-pointer"
+                            className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                              palette.isDark ? 'text-slate-500 hover:text-red-400 hover:bg-slate-800' : 'text-slate-400 hover:text-red-655 hover:bg-red-50'
+                            }`}
                             title="מחק לצמיתות מהארכיון"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -982,19 +1030,21 @@ export default function AdminDashboard({
       {isSettingsOpen && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4" dir="rtl" onClick={() => setIsSettingsOpen(false)}>
           <div 
-            className="bg-white rounded-3xl border border-slate-200 max-w-lg w-full p-6 shadow-2xl space-y-5 animate-fade-in text-right max-h-[90vh] overflow-y-auto"
+            className={`rounded-3xl border max-w-lg w-full p-6 shadow-2xl space-y-5 animate-fade-in text-right max-h-[95vh] overflow-y-auto ${
+              palette.isDark ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-slate-200 text-slate-800'
+            }`}
             onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
           >
             
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h2 className="text-lg font-black text-slate-800 flex items-center gap-1.5">
-                <Settings className="w-5 h-5 text-slate-600" />
+            <div className="flex items-center justify-between border-b border-slate-100/10 pb-3">
+              <h2 className="text-lg font-black flex items-center gap-1.5">
+                <Settings className="w-5 h-5 text-slate-500" />
                 <span>הגדרות המערכת והטלוויזיה</span>
               </h2>
               <button 
                 onClick={() => setIsSettingsOpen(false)}
-                className="text-slate-400 hover:text-slate-800 text-xl font-bold p-1 cursor-pointer"
+                className={`text-xl font-bold p-1 cursor-pointer ${palette.isDark ? 'text-slate-450 hover:text-slate-250' : 'text-slate-400 hover:text-slate-850'}`}
               >
                 ×
               </button>
@@ -1009,7 +1059,9 @@ export default function AdminDashboard({
                   onClick={() => onTvSoundToggle(true)}
                   className={`flex-1 py-2.5 px-3 rounded-xl border text-xs font-extrabold transition-all cursor-pointer text-center ${
                     tvSoundEnabled
-                      ? 'bg-emerald-50 border-emerald-300 text-emerald-700 shadow-xs'
+                      ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400 shadow-xs font-black'
+                      : palette.isDark
+                      ? 'bg-slate-800 border-slate-750 text-slate-400'
                       : 'bg-slate-50 border-slate-200 text-slate-400'
                   }`}
                 >
@@ -1020,7 +1072,9 @@ export default function AdminDashboard({
                   onClick={() => onTvSoundToggle(false)}
                   className={`flex-1 py-2.5 px-3 rounded-xl border text-xs font-extrabold transition-all cursor-pointer text-center ${
                     !tvSoundEnabled
-                      ? 'bg-rose-50 border-rose-300 text-rose-700 shadow-xs'
+                      ? 'bg-rose-500/20 border-rose-500 text-rose-450 shadow-xs font-black'
+                      : palette.isDark
+                      ? 'bg-slate-800 border-slate-750 text-slate-400'
                       : 'bg-slate-50 border-slate-200 text-slate-400'
                   }`}
                 >
@@ -1033,7 +1087,7 @@ export default function AdminDashboard({
             <div className="space-y-2 pt-1">
               <label className="block text-xs font-bold text-slate-500">העלאת לוגו למספרה</label>
               
-              <div className="flex items-center gap-4 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+              <div className={`flex items-center gap-4 p-3 rounded-2xl border ${palette.isDark ? 'bg-slate-950/50 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
                 {/* Logo Preview */}
                 <div className="w-16 h-16 bg-white rounded-xl border border-slate-200 flex items-center justify-center overflow-hidden shrink-0">
                   <img
@@ -1047,7 +1101,11 @@ export default function AdminDashboard({
                 </div>
 
                 <div className="flex-1 space-y-1.5 text-right">
-                  <label className="inline-block bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-700 text-xs font-black py-2 px-3 rounded-xl cursor-pointer transition-all">
+                  <label className={`inline-block border text-xs font-black py-2 px-3 rounded-xl cursor-pointer transition-all ${
+                    palette.isDark 
+                      ? 'bg-purple-950/40 border-purple-900 text-purple-300 hover:bg-purple-900/60' 
+                      : 'bg-purple-50 hover:bg-purple-100 border-purple-200 text-purple-700'
+                  }`}>
                     <span>בחר קובץ תמונה 📁</span>
                     <input
                       type="file"
@@ -1061,7 +1119,7 @@ export default function AdminDashboard({
                     <button
                       type="button"
                       onClick={() => onLogoUrlChange('/logo.jpg')}
-                      className="block text-[10px] text-red-500 hover:text-red-700 font-extrabold cursor-pointer"
+                      className="block text-[10px] text-red-500 hover:text-red-400 font-extrabold cursor-pointer"
                     >
                       שחזר לוגו מקורי של JOY & POLA
                     </button>
@@ -1069,7 +1127,7 @@ export default function AdminDashboard({
                 </div>
               </div>
               <p className="text-[10px] text-slate-450 leading-tight">
-                מומלץ להעלות תמונה ריבועית או לוגו עם רקע לבן. התמונה תידחס ותישמר במערכת באופן אוטומטי.
+                מומלץ להעלות תמונה ריבועית עם רקע לבן. התמונה תידחס ותישמר במערכת באופן אוטומטי.
               </p>
             </div>
 
@@ -1081,7 +1139,11 @@ export default function AdminDashboard({
                 placeholder="הקלד את כתובת המספרה להצגה..."
                 value={businessAddress}
                 onChange={(e) => onBusinessAddressChange(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:bg-white font-medium transition-all"
+                className={`w-full border rounded-xl px-3 py-2.5 text-xs placeholder-slate-450 focus:outline-none focus:border-purple-500 font-medium transition-all ${
+                  palette.isDark
+                    ? 'bg-slate-800/80 border-slate-750 text-slate-100 focus:bg-slate-800'
+                    : 'bg-slate-50 border-slate-200 text-slate-800 focus:bg-white'
+                }`}
               />
             </div>
 
@@ -1093,7 +1155,11 @@ export default function AdminDashboard({
                 placeholder="נוסח הודעת וואטסאפ לסיום תספורת..."
                 value={whatsappTemplate}
                 onChange={(e) => onWhatsappTemplateChange(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-slate-855 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:bg-white font-medium transition-all resize-none leading-relaxed"
+                className={`w-full border rounded-xl px-3 py-2.5 text-xs placeholder-slate-455 focus:outline-none focus:border-purple-500 font-medium transition-all resize-none leading-relaxed ${
+                  palette.isDark
+                    ? 'bg-slate-800/80 border-slate-750 text-slate-100 focus:bg-slate-800'
+                    : 'bg-slate-50 border-slate-200 text-slate-855 focus:bg-white'
+                }`}
               />
               <p className="text-[10px] text-slate-450 leading-tight">
                 השתמש ב- <span className="font-bold">{'{owner}'}</span> עבור שם הבעלים, וב- <span className="font-bold">{'{dog}'}</span> עבור שם הכלב.
@@ -1113,16 +1179,19 @@ export default function AdminDashboard({
                       onClick={() => onPaletteChange(p.id)}
                       className={`w-full flex items-center justify-between p-2.5 rounded-xl border transition-all cursor-pointer text-right ${
                         isSelected
-                          ? 'border-purple-650 bg-purple-50/30 font-black shadow-xs'
-                          : 'border-slate-200 hover:bg-slate-50 font-bold'
+                          ? `bg-purple-650/15 font-black shadow-xs ${palette.isDark ? 'border-purple-500 text-purple-300' : 'border-purple-600 text-purple-900'}`
+                          : palette.isDark
+                          ? 'border-slate-800 hover:bg-slate-800 text-slate-300'
+                          : 'border-slate-200 hover:bg-slate-50 text-slate-700'
                       }`}
                     >
-                      <span className="text-xs text-slate-700">{p.name}</span>
+                      <span className="text-xs">{p.name}</span>
                       
                       {/* Color pills preview */}
                       <div className="flex items-center gap-1 shrink-0">
-                        <span className="w-3.5 h-3.5 rounded-full border border-slate-300/40" style={{ backgroundColor: p.color1 }} />
-                        <span className="w-3.5 h-3.5 rounded-full border border-slate-300/40" style={{ backgroundColor: p.color2 }} />
+                        <span className="w-3.5 h-3.5 rounded-full border border-slate-350/20" style={{ backgroundColor: p.color1 }} />
+                        <span className="w-3.5 h-3.5 rounded-full border border-slate-350/20" style={{ backgroundColor: p.color2 }} />
+                        <span className="w-3.5 h-3.5 rounded-full border border-slate-350/20" style={{ backgroundColor: p.color3 }} />
                       </div>
                     </button>
                   );
@@ -1131,7 +1200,7 @@ export default function AdminDashboard({
             </div>
 
             {/* Modal Footer / Close */}
-            <div className="pt-3 border-t border-slate-100 flex justify-end">
+            <div className="pt-3 border-t border-slate-100/10 flex justify-end">
               <button
                 type="button"
                 onClick={() => setIsSettingsOpen(false)}
@@ -1149,11 +1218,13 @@ export default function AdminDashboard({
       {editingDog && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4" dir="rtl" onClick={() => setEditingDog(null)}>
           <div 
-            className="bg-white rounded-3xl border border-slate-200 max-w-md w-full p-6 shadow-2xl space-y-4 animate-fade-in text-right"
+            className={`rounded-3xl border max-w-md w-full p-6 shadow-2xl space-y-4 animate-fade-in text-right ${
+              palette.isDark ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-slate-200 text-slate-800'
+            }`}
             onClick={(e) => e.stopPropagation()} // Prevent close on inner clicks
           >
-            <h2 className="text-lg font-black text-slate-800 border-b border-slate-100 pb-3 flex items-center gap-1.5">
-              <Edit2 className="w-5 h-5 text-indigo-650" />
+            <h2 className="text-lg font-black border-b border-slate-100/10 pb-3 flex items-center gap-1.5">
+              <Edit2 className="w-5 h-5 text-indigo-500" />
               <span>עריכת כרטיס כלב</span>
             </h2>
             
@@ -1165,7 +1236,9 @@ export default function AdminDashboard({
                   required
                   value={editingDog.dogName}
                   onChange={(e) => setEditingDog({ ...editingDog, dogName: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-purple-500 focus:bg-white"
+                  className={`w-full border rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-purple-500 ${
+                    palette.isDark ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'
+                  }`}
                 />
               </div>
               <div>
@@ -1174,7 +1247,9 @@ export default function AdminDashboard({
                   type="text"
                   value={editingDog.breed}
                   onChange={(e) => setEditingDog({ ...editingDog, breed: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-purple-500 focus:bg-white"
+                  className={`w-full border rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-purple-500 ${
+                    palette.isDark ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'
+                  }`}
                 />
               </div>
               <div>
@@ -1183,7 +1258,9 @@ export default function AdminDashboard({
                   type="text"
                   value={editingDog.ownerName}
                   onChange={(e) => setEditingDog({ ...editingDog, ownerName: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-purple-500 focus:bg-white"
+                  className={`w-full border rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-purple-500 ${
+                    palette.isDark ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'
+                  }`}
                 />
               </div>
               <div>
@@ -1192,7 +1269,9 @@ export default function AdminDashboard({
                   type="tel"
                   value={editingDog.phone}
                   onChange={(e) => setEditingDog({ ...editingDog, phone: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-900 focus:outline-none focus:border-purple-500 focus:bg-white text-left font-mono"
+                  className={`w-full border rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-purple-500 text-left font-mono ${
+                    palette.isDark ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'
+                  }`}
                   dir="ltr"
                 />
               </div>
@@ -1202,16 +1281,20 @@ export default function AdminDashboard({
                   rows="2"
                   value={editingDog.notes || ''}
                   onChange={(e) => setEditingDog({ ...editingDog, notes: e.target.value })}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-purple-500 focus:bg-white resize-none"
+                  className={`w-full border rounded-xl px-3 py-2 text-xs resize-none focus:outline-none focus:border-purple-500 ${
+                    palette.isDark ? 'bg-slate-800 border-slate-700 text-slate-100' : 'bg-slate-50 border-slate-200 text-slate-900'
+                  }`}
                 />
               </div>
             </div>
 
-            <div className="pt-3 border-t border-slate-100 flex items-center gap-2 justify-end">
+            <div className="pt-3 border-t border-slate-100/10 flex items-center gap-2 justify-end">
               <button
                 type="button"
                 onClick={() => setEditingDog(null)}
-                className="py-2 px-4 border border-slate-200 text-slate-500 text-xs font-bold rounded-xl hover:bg-slate-50 transition-all cursor-pointer"
+                className={`py-2 px-4 border text-xs font-bold rounded-xl hover:bg-slate-100 transition-all cursor-pointer ${
+                  palette.isDark ? 'border-slate-800 text-slate-400' : 'border-slate-200 text-slate-500'
+                }`}
               >
                 ביטול
               </button>
@@ -1239,10 +1322,12 @@ export default function AdminDashboard({
           setDeleteError('');
         }}>
           <div 
-            className="bg-white rounded-3xl border border-slate-200 max-sm w-full p-6 shadow-2xl space-y-4 animate-fade-in text-right"
+            className={`rounded-3xl border max-w-sm w-full p-6 shadow-2xl space-y-4 animate-fade-in text-right ${
+              palette.isDark ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-slate-200 text-slate-800'
+            }`}
             onClick={(e) => e.stopPropagation()} // Prevent close on inner clicks
           >
-            <div className="flex items-center gap-2 text-red-655 border-b border-slate-100 pb-3">
+            <div className="flex items-center gap-2 text-red-500 border-b border-slate-100/10 pb-3">
               <Lock className="w-5 h-5" />
               <h2 className="text-lg font-black">מחיקת כרטיס כלב מהתור</h2>
             </div>
@@ -1261,7 +1346,11 @@ export default function AdminDashboard({
                   setDeletePassword(e.target.value);
                   setDeleteError('');
                 }}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-900 focus:outline-none focus:border-red-500 focus:bg-white text-center font-mono font-bold"
+                className={`w-full border rounded-xl px-4 py-2.5 text-center font-mono font-bold focus:outline-none ${
+                  palette.isDark
+                    ? 'bg-slate-800 border-slate-700 text-slate-100 focus:border-red-500'
+                    : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-red-500'
+                }`}
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleConfirmDelete();
@@ -1275,7 +1364,7 @@ export default function AdminDashboard({
               )}
             </div>
 
-            <div className="pt-3 border-t border-slate-100 flex items-center gap-2 justify-end">
+            <div className="pt-3 border-t border-slate-100/10 flex items-center gap-2 justify-end">
               <button
                 type="button"
                 onClick={() => {
@@ -1283,14 +1372,16 @@ export default function AdminDashboard({
                   setDeletePassword('');
                   setDeleteError('');
                 }}
-                className="py-2 px-4 border border-slate-200 text-slate-500 text-xs font-bold rounded-xl hover:bg-slate-50 transition-all cursor-pointer"
+                className={`py-2 px-4 border text-xs font-bold rounded-xl hover:bg-slate-100 transition-all cursor-pointer ${
+                  palette.isDark ? 'border-slate-800 text-slate-400' : 'border-slate-200 text-slate-500'
+                }`}
               >
                 ביטול
               </button>
               <button
                 type="button"
                 onClick={handleConfirmDelete}
-                className="py-2 px-6 bg-red-655 hover:bg-red-755 text-white text-xs font-extrabold rounded-xl transition-all cursor-pointer shadow-md shadow-red-100"
+                className="py-2 px-6 bg-red-600 hover:bg-red-700 text-white text-xs font-extrabold rounded-xl transition-all cursor-pointer shadow-md shadow-red-100"
               >
                 אשר מחיקה 🗑️
               </button>

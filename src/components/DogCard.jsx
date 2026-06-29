@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, Scissors } from 'lucide-react';
+import { Clock } from 'lucide-react';
 
-export default function DogCard({ dog, compact = false }) {
+export default function DogCard({ dog, compact = false, isDark = false }) {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
   useEffect(() => {
@@ -22,33 +22,40 @@ export default function DogCard({ dog, compact = false }) {
 
   const elapsedMinutes = Math.floor(elapsedSeconds / 60);
 
+  // Set default theme styling details
   let theme = {
-    colorClass: 'text-emerald-600',
-    borderClass: 'border-emerald-300 shadow-md shadow-emerald-100/50 hover:border-emerald-450',
+    colorClass: 'text-emerald-500',
+    borderClass: isDark ? 'border-emerald-950/80 shadow-emerald-950/20' : 'border-emerald-300 shadow-emerald-100/50',
     bgGlow: 'bg-emerald-500/10',
-    cardBg: 'bg-emerald-50/40',
-    badgeClass: 'bg-emerald-100 text-emerald-800 border-emerald-250',
+    cardBg: isDark ? 'bg-emerald-950/20' : 'bg-emerald-50/40',
+    badgeClass: isDark 
+      ? 'bg-emerald-950/50 text-emerald-300 border-emerald-900/60' 
+      : 'bg-emerald-100 text-emerald-800 border-emerald-250',
     statusText: 'בטיפול ✂️',
     pulse: false
   };
 
   if (elapsedMinutes >= 90) {
     theme = {
-      colorClass: 'text-rose-600',
-      borderClass: 'border-rose-400 shadow-lg shadow-rose-150 animate-pulse-rose',
+      colorClass: 'text-rose-500',
+      borderClass: isDark ? 'border-rose-950/80 shadow-rose-950/20 animate-pulse-rose' : 'border-rose-400 shadow-rose-150 animate-pulse-rose',
       bgGlow: 'bg-rose-500/15',
-      cardBg: 'bg-rose-50/50',
-      badgeClass: 'bg-rose-100 text-rose-800 border-rose-250 font-bold',
+      cardBg: isDark ? 'bg-rose-950/30' : 'bg-rose-50/50',
+      badgeClass: isDark 
+        ? 'bg-rose-950/50 text-rose-300 border-rose-900/60 font-bold' 
+        : 'bg-rose-100 text-rose-800 border-rose-250 font-bold',
       statusText: 'חריגת זמן! ⚠️',
       pulse: true
     };
   } else if (elapsedMinutes >= 60) {
     theme = {
-      colorClass: 'text-amber-600',
-      borderClass: 'border-amber-300 shadow-md shadow-amber-100/60 hover:border-amber-450',
+      colorClass: 'text-amber-500',
+      borderClass: isDark ? 'border-amber-950/80 shadow-amber-950/20' : 'border-amber-300 shadow-amber-100/60',
       bgGlow: 'bg-amber-500/10',
-      cardBg: 'bg-amber-50/40',
-      badgeClass: 'bg-amber-100 text-amber-800 border-amber-250',
+      cardBg: isDark ? 'bg-amber-950/20' : 'bg-amber-50/40',
+      badgeClass: isDark 
+        ? 'bg-amber-950/50 text-amber-300 border-amber-900/60' 
+        : 'bg-amber-100 text-amber-800 border-amber-250',
       statusText: 'טיפול מתארך ⏳',
       pulse: false
     };
@@ -71,9 +78,11 @@ export default function DogCard({ dog, compact = false }) {
   };
 
   return (
-    <div className={`rounded-3xl border-2 flex flex-col justify-between h-full relative overflow-hidden bg-white/95 shadow-xl transition-all duration-300 ${
+    <div className={`rounded-3xl border-2 flex flex-col justify-between h-full relative overflow-hidden shadow-xl transition-all duration-300 ${
       compact ? 'p-4 md:p-5' : 'p-6 md:p-8 hover:-translate-y-1 hover:shadow-2xl'
-    } ${theme.borderClass}`}>
+    } ${theme.borderClass} ${
+      isDark ? 'bg-slate-900/80 border-slate-800' : 'bg-white/95'
+    }`}>
       
       {/* Playful background card color tint */}
       <div className={`absolute inset-0 opacity-40 -z-10 transition-colors duration-500 ${theme.cardBg}`} />
@@ -91,7 +100,11 @@ export default function DogCard({ dog, compact = false }) {
             <span>{theme.statusText}</span>
           </div>
           
-          <div className="flex items-center gap-1 text-slate-500 text-[10px] md:text-xs bg-slate-100 py-0.5 px-2 rounded-full border border-slate-200 font-bold">
+          <div className={`flex items-center gap-1 text-[10px] md:text-xs py-0.5 px-2 rounded-full border font-bold ${
+            isDark 
+              ? 'bg-slate-950 border-slate-850 text-slate-400' 
+              : 'bg-slate-100 border-slate-200 text-slate-500'
+          }`}>
             <Clock className="w-3 h-3 text-indigo-500" />
             <span className="font-mono">{formatStartTime(dog.startTime)}</span>
           </div>
@@ -99,13 +112,19 @@ export default function DogCard({ dog, compact = false }) {
 
         {/* Dog's Name & Breed */}
         <div className={`flex items-center justify-between gap-2 ${compact ? 'mt-2 mb-1' : 'mt-4 mb-2'}`}>
-          <h2 className={`font-black text-slate-855 tracking-tight break-all leading-tight ${
+          <h2 className={`font-black tracking-tight break-all leading-tight ${
+            isDark ? 'text-slate-100' : 'text-slate-855'
+          } ${
             compact ? 'text-2xl md:text-3xl lg:text-4xl' : 'text-4xl md:text-5xl lg:text-6xl'
           }`}>
             {dog.dogName}
           </h2>
           {dog.breed && (
-            <span className={`font-bold bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-100 truncate shrink-0 ${
+            <span className={`font-bold rounded-lg border truncate shrink-0 ${
+              isDark 
+                ? 'bg-indigo-950/40 border-indigo-900 text-indigo-300' 
+                : 'bg-indigo-50 border-indigo-100 text-indigo-700'
+            } ${
               compact ? 'text-[9px] md:text-xs py-0.5 px-1.5 max-w-[80px] md:max-w-[100px]' : 'text-xs py-1 px-3 max-w-[130px]'
             }`}>
               {dog.breed}
@@ -115,8 +134,12 @@ export default function DogCard({ dog, compact = false }) {
       </div>
 
       {/* Live Stopwatch */}
-      <div className={`border-t border-slate-100 flex flex-col justify-end ${compact ? 'mt-2 pt-2' : 'mt-6 pt-4'}`}>
-        <div className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
+      <div className={`border-t flex flex-col justify-end ${
+        isDark ? 'border-slate-800' : 'border-slate-100'
+      } ${compact ? 'mt-2 pt-2' : 'mt-6 pt-4'}`}>
+        <div className={`text-[9px] md:text-[10px] font-bold uppercase tracking-wider mb-0.5 ${
+          isDark ? 'text-slate-450' : 'text-slate-400'
+        }`}>
           זמן עבודה מצטבר
         </div>
         <div className={`font-mono font-black tracking-wider tabular-nums leading-none ${theme.colorClass} ${

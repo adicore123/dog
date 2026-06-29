@@ -110,23 +110,29 @@ export default function TvDisplay({ dogs, palette, businessAddress, logoUrl, nav
         <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto lg:mr-auto justify-between lg:justify-end">
           
           {/* Active Dogs Count */}
-          <div className="bg-white/95 backdrop-blur-sm px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-2">
+          <div className={`backdrop-blur-sm px-4 py-2.5 rounded-xl border shadow-sm flex items-center gap-2 ${
+            palette.isDark ? 'bg-slate-900/90 border-slate-800 text-slate-100' : 'bg-white/95 border-slate-200 text-slate-900'
+          }`}>
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-            <div className="text-slate-600 text-xs font-bold">
-              כלבים בטיפול פעיל: <span className="text-slate-900 font-black text-sm">{activeCount}</span>
+            <div className={`text-xs font-bold ${palette.isDark ? 'text-slate-350' : 'text-slate-600'}`}>
+              כלבים בטיפול פעיל: <span className={`font-black text-sm ${palette.isDark ? 'text-slate-100' : 'text-slate-900'}`}>{activeCount}</span>
             </div>
           </div>
 
           {/* Divider */}
-          <div className="hidden sm:block w-px h-8 bg-slate-200" />
+          <div className={`hidden sm:block w-px h-8 ${palette.isDark ? 'bg-slate-800' : 'bg-slate-200'}`} />
 
           {/* Digital Signage Clock */}
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 text-slate-850 font-mono text-2xl md:text-3xl font-black tracking-wider leading-none">
-              <Clock className="w-6 h-6 text-blue-800" />
+            <div className={`flex items-center gap-2 font-mono text-2xl md:text-3xl font-black tracking-wider leading-none ${
+              palette.isDark ? 'text-slate-100' : 'text-slate-850'
+            }`}>
+              <Clock className="w-6 h-6 text-blue-500" />
               <span>{formatHeaderTime(currentDate)}</span>
             </div>
-            <div className="hidden md:flex flex-col text-slate-450 text-[10px] font-bold leading-tight">
+            <div className={`hidden md:flex flex-col text-[10px] font-bold leading-tight ${
+              palette.isDark ? 'text-slate-450' : 'text-slate-450'
+            }`}>
               <span>{formatHeaderDate(currentDate)}</span>
             </div>
           </div>
@@ -137,15 +143,19 @@ export default function TvDisplay({ dogs, palette, businessAddress, logoUrl, nav
       <main className="flex-1 min-h-0 w-full overflow-hidden flex flex-col justify-center z-10">
         {activeCount === 0 ? (
           /* Empty State */
-          <div className="flex flex-col items-center justify-center py-12 text-center animate-fade-in max-w-md mx-auto">
+          <div className={`flex flex-col items-center justify-center p-8 rounded-3xl border text-center animate-fade-in max-w-md mx-auto shadow-xl ${
+            palette.isDark ? 'bg-slate-900/90 border-slate-800 text-slate-100' : 'bg-white border-slate-200 text-slate-800'
+          }`}>
             <div className="relative mb-6">
-              <div className="absolute inset-0 bg-indigo-50 rounded-full filter blur-2xl w-32 h-32 -m-4" />
-              <div className="relative p-6 bg-white rounded-full border border-indigo-50 text-indigo-400 shadow-lg">
+              <div className={`absolute inset-0 rounded-full filter blur-2xl w-32 h-32 -m-4 ${palette.isDark ? 'bg-slate-950' : 'bg-indigo-50'}`} />
+              <div className={`relative p-6 rounded-full border shadow-lg ${
+                palette.isDark ? 'bg-slate-950 border-slate-800 text-slate-300' : 'bg-white border-indigo-50 text-indigo-400'
+              }`}>
                 <Smile className="w-16 h-16 stroke-[1.2]" />
               </div>
             </div>
-            <h2 className="text-2xl font-black text-slate-800 mb-2">אין כלבים בטיפול כרגע</h2>
-            <p className="text-slate-500 text-sm leading-relaxed">
+            <h2 className="text-2xl font-black mb-2">אין כלבים בטיפול כרגע</h2>
+            <p className={`text-sm leading-relaxed ${palette.isDark ? 'text-slate-400' : 'text-slate-500'}`}>
               התצוגה תתעדכן באופן אוטומטי ברגע שיתחיל טיפול חדש במספרה.
             </p>
           </div>
@@ -155,14 +165,14 @@ export default function TvDisplay({ dogs, palette, businessAddress, logoUrl, nav
             {/* Desktop / TV view */}
             <div className="hidden lg:grid" style={gridStyle}>
               {dogs.map((dog) => (
-                <DogCard key={dog.id} dog={dog} compact={activeCount > 3} />
+                <DogCard key={dog.id} dog={dog} compact={activeCount > 3} isDark={palette.isDark} />
               ))}
             </div>
 
             {/* Mobile / Tablet fallback scrollable view */}
             <div className="grid lg:hidden grid-cols-1 md:grid-cols-2 gap-6 overflow-y-auto max-h-[70vh] pb-4">
               {dogs.map((dog) => (
-                <DogCard key={dog.id} dog={dog} compact={activeCount > 2} />
+                <DogCard key={dog.id} dog={dog} compact={activeCount > 2} isDark={palette.isDark} />
               ))}
             </div>
           </div>

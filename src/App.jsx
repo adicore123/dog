@@ -4,7 +4,7 @@ import AdminDashboard from './components/AdminDashboard';
 import AdminLogin from './components/AdminLogin';
 import ClientDogStatus from './components/ClientDogStatus';
 
-// 5 stylish Tel Avivian feminine-focused color palettes
+// 7 stylish Tel Avivian designer color palettes (including 2 premium dark/neon themes)
 export const PALETTES = [
   {
     id: 'cream_classic',
@@ -17,7 +17,8 @@ export const PALETTES = [
     borderCol: 'border-slate-200',
     headerBadge: 'bg-white border-slate-100',
     accentText: 'text-amber-500',
-    accentBg: 'bg-amber-50 text-amber-800 border-amber-200'
+    accentBg: 'bg-amber-50 text-amber-800 border-amber-200',
+    isDark: false
   },
   {
     id: 'sunset_pink',
@@ -30,7 +31,8 @@ export const PALETTES = [
     borderCol: 'border-rose-200',
     headerBadge: 'bg-white border-rose-100',
     accentText: 'text-purple-600',
-    accentBg: 'bg-purple-50 text-purple-800 border-purple-200'
+    accentBg: 'bg-purple-50 text-purple-800 border-purple-200',
+    isDark: false
   },
   {
     id: 'pistachio_chic',
@@ -43,7 +45,8 @@ export const PALETTES = [
     borderCol: 'border-emerald-250',
     headerBadge: 'bg-white border-emerald-100',
     accentText: 'text-rose-500',
-    accentBg: 'bg-rose-50 text-rose-800 border-rose-200'
+    accentBg: 'bg-rose-50 text-rose-800 border-rose-200',
+    isDark: false
   },
   {
     id: 'lavender_dreams',
@@ -56,7 +59,8 @@ export const PALETTES = [
     borderCol: 'border-purple-200',
     headerBadge: 'bg-white border-purple-100',
     accentText: 'text-teal-600',
-    accentBg: 'bg-teal-50 text-teal-800 border-teal-200'
+    accentBg: 'bg-teal-50 text-teal-800 border-teal-200',
+    isDark: false
   },
   {
     id: 'vibrant_coral',
@@ -69,7 +73,36 @@ export const PALETTES = [
     borderCol: 'border-orange-200',
     headerBadge: 'bg-white border-orange-100',
     accentText: 'text-amber-600',
-    accentBg: 'bg-amber-50 text-amber-800 border-amber-200'
+    accentBg: 'bg-amber-50 text-amber-800 border-amber-200',
+    isDark: false
+  },
+  {
+    id: 'neon_night',
+    name: 'לילה תל אביבי 🌃 (Neon Night)',
+    bgClass: 'from-slate-950 via-slate-900 to-indigo-950',
+    bgColor: '#090d16',
+    primaryText: 'text-slate-100',
+    titleGradient: 'from-fuchsia-400 to-indigo-400',
+    primaryBg: 'bg-fuchsia-600 hover:bg-fuchsia-700 focus:border-fuchsia-500 shadow-fuchsia-950/20',
+    borderCol: 'border-slate-800',
+    headerBadge: 'bg-slate-900/80 border-slate-800 text-slate-200',
+    accentText: 'text-amber-400',
+    accentBg: 'bg-amber-950/30 text-amber-300 border-amber-900/50',
+    isDark: true
+  },
+  {
+    id: 'forest_dark',
+    name: 'פיסטוק יער כהה 🌲 (Forest Blush)',
+    bgClass: 'from-slate-950 via-zinc-900 to-emerald-950',
+    bgColor: '#070c09',
+    primaryText: 'text-slate-100',
+    titleGradient: 'from-emerald-400 to-teal-400',
+    primaryBg: 'bg-emerald-600 hover:bg-emerald-700 focus:border-emerald-500 shadow-emerald-950/20',
+    borderCol: 'border-slate-800',
+    headerBadge: 'bg-slate-900/80 border-slate-800 text-slate-200',
+    accentText: 'text-rose-400',
+    accentBg: 'bg-rose-950/30 text-rose-300 border-rose-900/50',
+    isDark: true
   }
 ];
 
@@ -204,7 +237,7 @@ const triggerSound = (presetId) => {
           const delay = idx * 0.16;
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
-          osc.type = 'square';
+          osc.type = 'sawtooth';
           osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
           
           gain.gain.setValueAtTime(0, ctx.currentTime);
