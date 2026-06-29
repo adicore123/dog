@@ -92,6 +92,10 @@ export default function AdminDashboard({
   const [deletingDogId, setDeletingDogId] = useState(null);
   const [deletePassword, setDeletePassword] = useState('');
   const [deleteError, setDeleteError] = useState('');
+
+  // 15-Minute waiting alert states
+  const [acknowledged15MinAlerts, setAcknowledged15MinAlerts] = useState([]);
+  const [active15MinAlertDog, setActive15MinAlertDog] = useState(null);
   
   // Custom persistent breeds list
   const [availableBreeds, setAvailableBreeds] = useState(() => {
@@ -120,22 +124,48 @@ export default function AdminDashboard({
   const [playedWaitingAlerts, setPlayedWaitingAlerts] = useState([]);
   const [playedActiveAlerts, setPlayedActiveAlerts] = useState([]);
 
+  // Tick state triggers every 1 second for live clock & stopwatch updates
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setTick((t) => t + 1);
-    }, 5000);
+    }, 1000);
     return () => clearInterval(timer);
   }, []);
 
+  // 15-Minute waiting queue alert checks + warning badges triggers
   useEffect(() => {
     const now = Date.now();
+
+    // If an alert is already active, verify the dog is still in the waiting queue
+    if (active15MinAlertDog) {
+      const stillWaiting = dogs.find(d => d.id === active15MinAlertDog.id && d.status === 'waiting');
+      if (!stillWaiting) {
+        setActive15MinAlertDog(null);
+        return;
+      }
+    }
     
+    // Check if any dog has been waiting in the lobby for 15+ minutes
+    const alertDog = dogs.find(
+      (dog) =>
+        dog.status === 'waiting' &&
+        (now - dog.arrivalTime) >= 15 * 60 * 1000 &&
+        !acknowledged15MinAlerts.includes(dog.id)
+    );
+
+    if (alertDog && !active15MinAlertDog) {
+      setActive15MinAlertDog(alertDog);
+      onTriggerSound(selectedSound);
+    }
+    
+    // Waiting warning badges threshold (20 mins)
     const waitingAlertIds = dogs
       .filter((dog) => dog.status === 'waiting' && (now - dog.arrivalTime) >= 20 * 60 * 1000)
       .map((dog) => dog.id);
       
+    // Active treatment warning badges (90 mins)
     const activeAlertIds = dogs
       .filter((dog) => dog.status === 'active' && dog.startTime && (now - dog.startTime) >= 90 * 60 * 1000)
       .map((dog) => dog.id);
@@ -143,19 +173,19 @@ export default function AdminDashboard({
     let chimePlayed = false;
 
     const newWaitingAlerts = waitingAlertIds.filter(id => !playedWaitingAlerts.includes(id));
-    if (newWaitingAlerts.length > 0) {
+    if (newWaitingAlerts.length > 0 && !alertDog) {
       onTriggerSound(selectedSound);
       chimePlayed = true;
     }
 
     const newActiveAlerts = activeAlertIds.filter(id => !playedActiveAlerts.includes(id));
-    if (newActiveAlerts.length > 0 && !chimePlayed) {
+    if (newActiveAlerts.length > 0 && !chimePlayed && !alertDog) {
       onTriggerSound(selectedSound);
     }
 
     setPlayedWaitingAlerts(waitingAlertIds);
     setPlayedActiveAlerts(activeAlertIds);
-  }, [dogs, tick, playedWaitingAlerts, playedActiveAlerts, selectedSound]);
+  }, [dogs, tick, playedWaitingAlerts, playedActiveAlerts, selectedSound, acknowledged15MinAlerts, active15MinAlertDog]);
 
   useEffect(() => {
     if (!breedInput.trim()) {
@@ -318,6 +348,14 @@ export default function AdminDashboard({
     }
   };
 
+  // Acknowledge the 15-minute lobby waiting warning modal
+  const handleAcknowledgeAlert = () => {
+    if (active15MinAlertDog) {
+      setAcknowledged15MinAlerts((prev) => [...prev, active15MinAlertDog.id]);
+      setActive15MinAlertDog(null);
+    }
+  };
+
   const getWaitingTimeMinutes = (arrivalTime) => {
     const elapsedMs = Date.now() - arrivalTime;
     return Math.max(0, Math.floor(elapsedMs / 60000));
@@ -475,7 +513,7 @@ export default function AdminDashboard({
           {/* Register Card */}
           <div className={`rounded-3xl border p-6 shadow-md ${palette.isDark ? 'bg-slate-900/80 border-slate-850 text-slate-100' : 'bg-white border-slate-200/80 text-slate-800'}`}>
             <h2 className="text-lg font-black border-b border-slate-100/10 pb-3 mb-5 flex items-center gap-2">
-              <Plus className="w-5 h-5 text-purple-600" />
+              <Plus className="w-5 h-5 text-purple-650" />
               <span>רישום לקוח חדש שהגיע</span>
             </h2>
             
@@ -571,7 +609,7 @@ export default function AdminDashboard({
                     <div className="fixed inset-0 z-10" onClick={() => setIsDropdownOpen(false)} />
                     <ul className={`absolute z-20 w-full mt-1.5 border rounded-xl shadow-xl max-h-52 overflow-y-auto divide-y ${palette.isDark ? 'bg-slate-900 border-slate-800 divide-slate-800' : 'bg-white border-slate-200 divide-slate-50'}`}>
                       {filteredBreeds.length === 0 ? (
-                        <li className="p-3 text-xs text-slate-450 italic">
+                        <li className="p-3 text-xs text-slate-455 italic">
                           אין גזע תואם. הקלד גזע מותאם אישית...
                         </li>
                       ) : (
@@ -618,7 +656,7 @@ export default function AdminDashboard({
           </div>
 
           {/* Demo Actions */}
-          <div className={`rounded-3xl border p-6 shadow-md ${palette.isDark ? 'bg-slate-900/80 border-slate-850 text-slate-100' : 'bg-white border-slate-200/80 text-slate-800'}`}>
+          <div className={`rounded-3xl border p-6 shadow-md ${palette.isDark ? 'bg-slate-900/80 border-slate-855 text-slate-100' : 'bg-white border-slate-200/80 text-slate-800'}`}>
             <h2 className="text-sm font-black border-b border-slate-100/10 pb-2 flex items-center gap-1.5">
               <Sparkles className="w-4 h-4 text-amber-500" />
               <span>סימולציות דמו מהירות לטלוויזיה ולתור</span>
@@ -638,7 +676,7 @@ export default function AdminDashboard({
         <div className="xl:col-span-8 space-y-6">
           
           {/* Waiting Queue */}
-          <div className={`rounded-3xl border p-6 shadow-md ${palette.isDark ? 'bg-slate-900/80 border-slate-850 text-slate-100' : 'bg-white border-slate-200/80 text-slate-800'}`}>
+          <div className={`rounded-3xl border p-6 shadow-md ${palette.isDark ? 'bg-slate-900/80 border-slate-855 text-slate-100' : 'bg-white border-slate-200/80 text-slate-800'}`}>
             <h2 className="text-lg font-black border-b border-slate-100/10 pb-3 mb-4 flex items-center justify-between">
               <span className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
@@ -686,7 +724,7 @@ export default function AdminDashboard({
                             <span>•</span>
                             <span className="font-mono">{dog.phone || 'אין טלפון'}</span>
                             <span>•</span>
-                            <span className="font-mono text-slate-450">הגעה: {formatTimeOfDay(dog.arrivalTime)}</span>
+                            <span className="font-mono text-slate-450">הגעה: {formatTimeOfDay(dog.arrivalTime)} ({waitMinutes} דק' במספרה)</span>
                           </div>
                         </div>
 
@@ -703,7 +741,7 @@ export default function AdminDashboard({
                           {/* Delete button (Requires admin password) */}
                           <button
                             onClick={() => setDeletingDogId(dog.id)}
-                            className={`p-2 rounded-xl transition-all cursor-pointer ${palette.isDark ? 'text-slate-455 hover:text-red-400 hover:bg-slate-800' : 'text-slate-400 hover:text-red-650 hover:bg-red-50'}`}
+                            className={`p-2 rounded-xl transition-all cursor-pointer ${palette.isDark ? 'text-slate-455 hover:text-red-400 hover:bg-slate-800' : 'text-slate-400 hover:text-red-655 hover:bg-red-50'}`}
                             title="מחק כרטיס (דורש סיסמה)"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -767,7 +805,7 @@ export default function AdminDashboard({
           </div>
 
           {/* Active Treatments */}
-          <div className={`rounded-3xl border p-6 shadow-md ${palette.isDark ? 'bg-slate-900/80 border-slate-850 text-slate-100' : 'bg-white border-slate-200/80 text-slate-800'}`}>
+          <div className={`rounded-3xl border p-6 shadow-md ${palette.isDark ? 'bg-slate-900/80 border-slate-855 text-slate-100' : 'bg-white border-slate-200/80 text-slate-800'}`}>
             <h2 className="text-lg font-black border-b border-slate-100/10 pb-3 mb-4 flex items-center justify-between">
               <span className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
@@ -781,6 +819,7 @@ export default function AdminDashboard({
             ) : (
               <div className="divide-y divide-slate-150/10 overflow-y-auto max-h-80 pr-1 space-y-3.5">
                 {activeDogs.map((dog) => {
+                  const totalGroomingMinutes = getWaitingTimeMinutes(dog.arrivalTime);
                   return (
                     <div
                       key={dog.id}
@@ -801,7 +840,7 @@ export default function AdminDashboard({
                             <span>•</span>
                             <span className="font-mono">{dog.phone || 'אין טלפון'}</span>
                             <span>•</span>
-                            <span className="font-mono text-slate-450">התחלה: {formatTimeOfDay(dog.startTime)}</span>
+                            <span className="font-mono text-slate-450">התחלה: {formatTimeOfDay(dog.startTime)} (סך הכל במספרה: {totalGroomingMinutes} דק')</span>
                           </div>
                         </div>
 
@@ -815,7 +854,7 @@ export default function AdminDashboard({
                           {/* Edit button */}
                           <button
                             onClick={() => setEditingDog(dog)}
-                            className={`p-2 rounded-xl transition-all cursor-pointer ${palette.isDark ? 'text-slate-450 hover:text-indigo-450 hover:bg-slate-800' : 'text-slate-400 hover:text-indigo-650 hover:bg-slate-100'}`}
+                            className={`p-2 rounded-xl transition-all cursor-pointer ${palette.isDark ? 'text-slate-450 hover:text-indigo-455 hover:bg-slate-800' : 'text-slate-400 hover:text-indigo-655 hover:bg-slate-100'}`}
                             title="ערוך פרטי כלב"
                           >
                             <Edit2 className="w-4 h-4" />
@@ -892,7 +931,7 @@ export default function AdminDashboard({
 
       {/* FULL-WIDTH COLUMN: HISTORY TABLE */}
       <div className="grid grid-span-12 mt-8 z-10">
-        <div className={`rounded-3xl border p-6 shadow-md ${palette.isDark ? 'bg-slate-900/80 border-slate-850 text-slate-100' : 'bg-white border-slate-200/80 text-slate-800'}`}>
+        <div className={`rounded-3xl border p-6 shadow-md ${palette.isDark ? 'bg-slate-900/80 border-slate-855 text-slate-100' : 'bg-white border-slate-200/80 text-slate-800'}`}>
           
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between border-b border-slate-150/15 pb-4 mb-6 gap-4">
             <h2 className="text-lg font-black flex items-center gap-2">
@@ -934,7 +973,7 @@ export default function AdminDashboard({
               </div>
 
               <div className={`flex items-center gap-1.5 border rounded-xl px-2 py-1 ${palette.isDark ? 'bg-slate-800 border-slate-750' : 'bg-slate-50 border-slate-200'}`}>
-                <span className="text-[10px] font-bold text-slate-450">סינון תאריך:</span>
+                <span className="text-[10px] font-bold text-slate-455">סינון תאריך:</span>
                 <input
                   type="date"
                   value={historyDateFilter}
@@ -955,7 +994,7 @@ export default function AdminDashboard({
           </div>
 
           {filteredHistory.length === 0 ? (
-            <div className="text-center py-10 text-slate-400 italic text-sm">
+            <div className="text-center py-10 text-slate-450 italic text-sm">
               {history.length === 0 ? 'ארכיון הטיפולים ריק כרגע.' : 'לא נמצאו טיפולים התואמים את מסנני החיפוש.'}
             </div>
           ) : (
@@ -974,7 +1013,7 @@ export default function AdminDashboard({
                     <th className="p-4 text-center">פעולות</th>
                   </tr>
                 </thead>
-                <tbody className={`divide-y font-medium ${palette.isDark ? 'divide-slate-850 text-slate-300' : 'divide-slate-100 text-slate-700'}`}>
+                <tbody className={`divide-y font-medium ${palette.isDark ? 'divide-slate-855 text-slate-350' : 'divide-slate-100 text-slate-700'}`}>
                   {filteredHistory.map((item) => (
                     <tr key={item.id} className={`transition-colors ${palette.isDark ? 'hover:bg-slate-950/40' : 'hover:bg-slate-50/50'}`}>
                       <td className={`p-4 font-bold ${palette.isDark ? 'text-slate-100' : 'text-slate-900'}`}>{item.dogName}</td>
@@ -1044,7 +1083,7 @@ export default function AdminDashboard({
               </h2>
               <button 
                 onClick={() => setIsSettingsOpen(false)}
-                className={`text-xl font-bold p-1 cursor-pointer ${palette.isDark ? 'text-slate-450 hover:text-slate-250' : 'text-slate-400 hover:text-slate-850'}`}
+                className={`text-xl font-bold p-1 cursor-pointer ${palette.isDark ? 'text-slate-455 hover:text-slate-255' : 'text-slate-400 hover:text-slate-850'}`}
               >
                 ×
               </button>
@@ -1072,7 +1111,7 @@ export default function AdminDashboard({
                   onClick={() => onTvSoundToggle(false)}
                   className={`flex-1 py-2.5 px-3 rounded-xl border text-xs font-extrabold transition-all cursor-pointer text-center ${
                     !tvSoundEnabled
-                      ? 'bg-rose-500/20 border-rose-500 text-rose-450 shadow-xs font-black'
+                      ? 'bg-rose-500/20 border-rose-500 text-rose-455 shadow-xs font-black'
                       : palette.isDark
                       ? 'bg-slate-800 border-slate-750 text-slate-400'
                       : 'bg-slate-50 border-slate-200 text-slate-400'
@@ -1293,7 +1332,7 @@ export default function AdminDashboard({
                 type="button"
                 onClick={() => setEditingDog(null)}
                 className={`py-2 px-4 border text-xs font-bold rounded-xl hover:bg-slate-100 transition-all cursor-pointer ${
-                  palette.isDark ? 'border-slate-800 text-slate-400' : 'border-slate-200 text-slate-500'
+                  palette.isDark ? 'border-slate-800 text-slate-400' : 'border-slate-200 text-slate-550'
                 }`}
               >
                 ביטול
@@ -1373,7 +1412,7 @@ export default function AdminDashboard({
                   setDeleteError('');
                 }}
                 className={`py-2 px-4 border text-xs font-bold rounded-xl hover:bg-slate-100 transition-all cursor-pointer ${
-                  palette.isDark ? 'border-slate-800 text-slate-400' : 'border-slate-200 text-slate-500'
+                  palette.isDark ? 'border-slate-800 text-slate-400' : 'border-slate-200 text-slate-550'
                 }`}
               >
                 ביטול
@@ -1384,6 +1423,40 @@ export default function AdminDashboard({
                 className="py-2 px-6 bg-red-600 hover:bg-red-700 text-white text-xs font-extrabold rounded-xl transition-all cursor-pointer shadow-md shadow-red-100"
               >
                 אשר מחיקה 🗑️
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 15-Minute Waiting Alert Popup (Urgent blocking overlay) */}
+      {active15MinAlertDog && (
+        <div className="fixed inset-0 bg-red-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" dir="rtl">
+          <div className={`rounded-3xl border-2 p-8 shadow-2xl space-y-5 animate-bounce-short text-center max-w-md w-full ${
+            palette.isDark ? 'bg-slate-900 border-red-900 text-slate-100' : 'bg-white border-red-400 text-slate-800'
+          }`}>
+            <div className="relative mx-auto w-20 h-20 bg-red-500/10 border border-red-500/30 rounded-full flex items-center justify-center animate-pulse mb-2">
+              <AlertCircle className="w-12 h-12 text-red-500" />
+            </div>
+            
+            <h2 className="text-xl font-black text-red-500">התראת המתנה חריגה! 🚨</h2>
+            
+            <div className="space-y-2">
+              <p className="text-sm font-semibold">
+                הכלב <span className="font-black text-base underline decoration-red-500">{active15MinAlertDog.dogName}</span> (של {active15MinAlertDog.ownerName || 'לקוח'})
+              </p>
+              <p className="text-xs text-slate-450 leading-relaxed font-bold">
+                ממתין בלובי כבר <span className="text-red-500 font-extrabold text-sm">{getWaitingTimeMinutes(active15MinAlertDog.arrivalTime)} דקות</span> ללא תחילת טיפול!
+              </p>
+            </div>
+
+            <div className="pt-3 border-t border-slate-100/10">
+              <button
+                type="button"
+                onClick={handleAcknowledgeAlert}
+                className="w-full py-3 bg-red-600 hover:bg-red-700 text-white text-sm font-extrabold rounded-xl transition-all cursor-pointer shadow-lg shadow-red-500/20"
+              >
+                אישור קבלת התראה 👍
               </button>
             </div>
           </div>
