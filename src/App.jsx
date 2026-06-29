@@ -3,6 +3,75 @@ import TvDisplay from './components/TvDisplay';
 import AdminDashboard from './components/AdminDashboard';
 import AdminLogin from './components/AdminLogin';
 
+// 5 stylish Tel Avivian feminine-focused color palettes
+export const PALETTES = [
+  {
+    id: 'cream_classic',
+    name: 'שמנת קלאסית 🐶 (JOY & POLA)',
+    bgClass: 'from-indigo-50/20 via-[#faf9f2] to-amber-50/20',
+    bgColor: '#faf9f2',
+    primaryText: 'text-blue-900',
+    titleGradient: 'from-blue-900 to-indigo-750',
+    primaryBg: 'bg-purple-600 hover:bg-purple-700 focus:border-purple-500 shadow-purple-100',
+    borderCol: 'border-slate-200',
+    headerBadge: 'bg-white border-slate-100',
+    accentText: 'text-amber-500',
+    accentBg: 'bg-amber-50 text-amber-800 border-amber-200'
+  },
+  {
+    id: 'sunset_pink',
+    name: 'ורוד שקיעה תל אביבית 🌸 (Chic Rose)',
+    bgClass: 'from-rose-50/30 via-[#fff5f6] to-purple-50/30',
+    bgColor: '#fff5f6',
+    primaryText: 'text-rose-900',
+    titleGradient: 'from-rose-900 to-purple-800',
+    primaryBg: 'bg-rose-550 hover:bg-rose-650 focus:border-rose-450 shadow-rose-100',
+    borderCol: 'border-rose-200',
+    headerBadge: 'bg-white border-rose-100',
+    accentText: 'text-purple-600',
+    accentBg: 'bg-purple-50 text-purple-800 border-purple-200'
+  },
+  {
+    id: 'pistachio_chic',
+    name: 'פיסטוק ורוד שיק 🌿 (Pistachio Blush)',
+    bgClass: 'from-emerald-50/20 via-[#f4f7f0] to-rose-50/20',
+    bgColor: '#f4f7f0',
+    primaryText: 'text-emerald-950',
+    titleGradient: 'from-emerald-900 to-teal-800',
+    primaryBg: 'bg-emerald-600 hover:bg-emerald-700 focus:border-emerald-500 shadow-emerald-100',
+    borderCol: 'border-emerald-250',
+    headerBadge: 'bg-white border-emerald-100',
+    accentText: 'text-rose-500',
+    accentBg: 'bg-rose-50 text-rose-800 border-rose-200'
+  },
+  {
+    id: 'lavender_dreams',
+    name: 'לבנדר חלומות 🍇 (Lavender Mint)',
+    bgClass: 'from-purple-50/30 via-[#f7f4fc] to-teal-50/20',
+    bgColor: '#f7f4fc',
+    primaryText: 'text-purple-950',
+    titleGradient: 'from-purple-900 to-indigo-800',
+    primaryBg: 'bg-purple-600 hover:bg-purple-700 focus:border-purple-500 shadow-purple-100',
+    borderCol: 'border-purple-200',
+    headerBadge: 'bg-white border-purple-100',
+    accentText: 'text-teal-600',
+    accentBg: 'bg-teal-50 text-teal-800 border-teal-200'
+  },
+  {
+    id: 'vibrant_coral',
+    name: 'קורל תפוז תוסס 🍊 (Vibrant Coral)',
+    bgClass: 'from-orange-50/20 via-[#fffbf7] to-yellow-50/20',
+    bgColor: '#fffbf7',
+    primaryText: 'text-orange-950',
+    titleGradient: 'from-orange-900 to-red-800',
+    primaryBg: 'bg-orange-600 hover:bg-orange-700 focus:border-orange-500 shadow-orange-100',
+    borderCol: 'border-orange-200',
+    headerBadge: 'bg-white border-orange-100',
+    accentText: 'text-amber-600',
+    accentBg: 'bg-amber-50 text-amber-800 border-amber-200'
+  }
+];
+
 // Synthesize long (2.5s-4.5s) sophisticated designer alarms in-code using HTML5 Web Audio API
 const triggerSound = (presetId) => {
   try {
@@ -242,9 +311,25 @@ export default function App() {
     return sessionStorage.getItem('grooming_admin_authenticated') === 'true';
   });
 
+  // Settings: color palette and TV sound toggle (both local and cross-tab synced)
+  const [activePaletteId, setActivePaletteId] = useState(() => {
+    return localStorage.getItem('grooming_active_palette') || 'cream_classic';
+  });
+
+  const [tvSoundEnabled, setTvSoundEnabled] = useState(() => {
+    return localStorage.getItem('grooming_tv_sound_enabled') !== 'false';
+  });
+
   // Refs to prevent recursive write/sync feedback loops
   const isSyncingDogsRef = useRef(false);
   const isSyncingHistoryRef = useRef(false);
+
+  // Dynamic background style matching active palette
+  const activePalette = PALETTES.find(p => p.id === activePaletteId) || PALETTES[0];
+
+  useEffect(() => {
+    document.body.style.backgroundColor = activePalette.bgColor;
+  }, [activePalette]);
 
   useEffect(() => {
     const handleLocationChange = () => {
@@ -318,12 +403,26 @@ export default function App() {
           console.error('Failed to sync grooming_history from another tab', err);
         }
       }
+      // Sync color palette changes
+      if (e.key === 'grooming_active_palette' && e.newValue) {
+        setActivePaletteId(e.newValue);
+      }
+      // Sync TV sound enabled setting
+      if (e.key === 'grooming_tv_sound_enabled' && e.newValue) {
+        setTvSoundEnabled(e.newValue !== 'false');
+      }
       // Cross-tab real-time audio synchronization
       if (e.key === 'grooming_trigger_sound_event' && e.newValue) {
         try {
           const eventData = JSON.parse(e.newValue);
+          const isTv = window.location.pathname !== '/admin';
+          const soundEnabledSetting = localStorage.getItem('grooming_tv_sound_enabled') !== 'false';
+          
           if (eventData && eventData.id) {
-            triggerSound(eventData.id);
+            // Only play if on admin, or if TV sound is enabled
+            if (!isTv || soundEnabledSetting) {
+              triggerSound(eventData.id);
+            }
           }
         } catch (err) {
           console.error('Failed to trigger sound from storage event', err);
@@ -363,10 +462,22 @@ export default function App() {
       } catch (e) {
         console.error('Failed to poll history', e);
       }
+
+      // Poll palette ID
+      const savedPalette = localStorage.getItem('grooming_active_palette') || 'cream_classic';
+      if (savedPalette !== activePaletteId) {
+        setActivePaletteId(savedPalette);
+      }
+
+      // Poll TV sound setting
+      const savedTvSound = localStorage.getItem('grooming_tv_sound_enabled') !== 'false';
+      if (savedTvSound !== tvSoundEnabled) {
+        setTvSoundEnabled(savedTvSound);
+      }
     }, 800);
 
     return () => clearInterval(interval);
-  }, [dogs, history]);
+  }, [dogs, history, activePaletteId, tvSoundEnabled]);
 
   const handleRegisterDog = (newDog) => {
     const dogWithId = {
@@ -523,6 +634,16 @@ export default function App() {
     }));
   };
 
+  const handlePaletteChange = (paletteId) => {
+    setActivePaletteId(paletteId);
+    localStorage.setItem('grooming_active_palette', paletteId);
+  };
+
+  const handleTvSoundToggle = (enabled) => {
+    setTvSoundEnabled(enabled);
+    localStorage.setItem('grooming_tv_sound_enabled', enabled ? 'true' : 'false');
+  };
+
   if (currentPath === '/admin') {
     if (!isAdminAuthenticated) {
       return (
@@ -539,6 +660,10 @@ export default function App() {
       <AdminDashboard
         dogs={dogs}
         history={history}
+        palette={activePalette}
+        tvSoundEnabled={tvSoundEnabled}
+        onPaletteChange={handlePaletteChange}
+        onTvSoundToggle={handleTvSoundToggle}
         onRegisterDog={handleRegisterDog}
         onStartTreatment={handleStartTreatment}
         onFinishTreatment={handleFinishTreatment}
@@ -554,6 +679,7 @@ export default function App() {
   return (
     <TvDisplay 
       dogs={dogs.filter((dog) => dog.status === 'active')} 
+      palette={activePalette}
       navigate={navigate}
     />
   );

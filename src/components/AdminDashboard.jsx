@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, Smile, Scissors, Plus, Bone, Trash2, ArrowLeft, AlertCircle, Sparkles, Search, Check, FileText, Volume2 } from 'lucide-react';
+import { Calendar, Clock, Smile, Scissors, Plus, Bone, Trash2, ArrowLeft, AlertCircle, Sparkles, Search, Check, FileText, Volume2, Settings } from 'lucide-react';
 
 const COMMON_BREEDS = [
   'שיצו',
@@ -32,6 +32,14 @@ const SOUND_PRESETS = [
   { id: 'urgent_pulse', name: 'זמזם חירום מואץ 🔴' }
 ];
 
+const PALETTES_PREVIEW = [
+  { id: 'cream_classic', name: 'שמנת קלאסית 🐶 (JOY & POLA)', color1: '#faf9f2', color2: '#1e3a8a' },
+  { id: 'sunset_pink', name: 'ורוד שקיעה תל אביבית 🌸', color1: '#fff5f6', color2: '#be123c' },
+  { id: 'pistachio_chic', name: 'פיסטוק ורוד שיק 🌿', color1: '#f4f7f0', color2: '#065f46' },
+  { id: 'lavender_dreams', name: 'לבנדר חלומות 🍇', color1: '#f7f4fc', color2: '#6d28d9' },
+  { id: 'vibrant_coral', name: 'קורל תפוז תוסס 🍊', color1: '#fffbf7', color2: '#ea580c' }
+];
+
 const WhatsAppIcon = () => (
   <svg
     viewBox="0 0 24 24"
@@ -44,11 +52,13 @@ const WhatsAppIcon = () => (
   </svg>
 );
 
-
-
 export default function AdminDashboard({
   dogs,
   history,
+  palette,
+  tvSoundEnabled,
+  onPaletteChange,
+  onTvSoundToggle,
   onRegisterDog,
   onStartTreatment,
   onFinishTreatment,
@@ -146,7 +156,6 @@ export default function AdminDashboard({
     const newBreed = breedInput.trim();
     if (!newBreed || availableBreeds.includes(newBreed)) return;
 
-    // Add to custom list (we keep only the new custom ones in localStorage)
     const saved = localStorage.getItem('grooming_custom_breeds');
     let customList = [];
     if (saved) {
@@ -290,10 +299,10 @@ export default function AdminDashboard({
   });
 
   return (
-    <div className="min-h-screen bg-[#faf9f2] p-6 md:p-10 select-none text-right flex flex-col font-sans" dir="rtl">
+    <div className={`min-h-screen bg-gradient-to-br ${palette.bgClass} p-6 md:p-10 select-none text-right flex flex-col font-sans`} dir="rtl">
       
       {/* Header */}
-      <header className="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-slate-200 pb-6 mb-8 gap-4">
+      <header className={`flex flex-col md:flex-row items-start md:items-center justify-between border-b ${palette.borderCol} pb-6 mb-8 gap-4`}>
         <div className="flex items-center gap-4">
           <div className="bg-white p-1 rounded-2xl shadow-md border border-slate-100 flex items-center justify-center overflow-hidden shrink-0">
             <img 
@@ -306,11 +315,11 @@ export default function AdminDashboard({
             />
           </div>
           <div>
-            <h1 className="text-2xl font-black text-blue-900 tracking-tight leading-none flex items-center gap-2">
+            <h1 className={`text-2xl font-black tracking-tight leading-none flex items-center gap-2 ${palette.primaryText}`}>
               <span>ממשק ניהול - JOY 🐶 POLA</span>
-              <Bone className="w-5 h-5 text-amber-500 fill-amber-400 rotate-12" />
+              <Bone className={`w-5 h-5 rotate-12 ${palette.accentText}`} />
             </h1>
-            <p className="text-slate-500 text-xs font-bold mt-1.5">
+            <p className="text-slate-655 text-xs font-bold mt-1.5">
               אבן גבירול 163, תל אביב • ניהול תורים, צלילי התראה חזקים ומעוצבים (שעון מעורר) וחריגות זמן
             </p>
           </div>
@@ -321,7 +330,7 @@ export default function AdminDashboard({
           
           {/* Sound Selector Dropdown */}
           <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-xl px-3 py-1.5 shadow-xs">
-            <Volume2 className="w-4 h-4 text-purple-600" />
+            <Volume2 className="w-4 h-4 text-purple-650" />
             <label className="text-[10px] font-bold text-slate-500">צליל מעורר:</label>
             <select
               value={selectedSound}
@@ -358,9 +367,10 @@ export default function AdminDashboard({
       {/* Main Grid */}
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
         
-        {/* RIGHT COLUMN: REGISTRATION (4 cols) */}
+        {/* RIGHT COLUMN: REGISTRATION & SETTINGS (4 cols) */}
         <div className="xl:col-span-4 space-y-6">
           
+          {/* Register Card */}
           <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-md">
             <h2 className="text-lg font-black text-slate-800 border-b border-slate-100 pb-3 mb-5 flex items-center gap-2">
               <Plus className="w-5 h-5 text-purple-650" />
@@ -429,7 +439,7 @@ export default function AdminDashboard({
                     disabled={!breedInput.trim() || availableBreeds.includes(breedInput.trim())}
                     className={`p-2.5 rounded-xl border font-bold transition-all flex items-center justify-center shrink-0 ${
                       breedInput.trim() && !availableBreeds.includes(breedInput.trim())
-                        ? 'bg-purple-600 border-purple-650 hover:bg-purple-750 text-white cursor-pointer shadow-md shadow-purple-100'
+                        ? `${palette.primaryBg} text-white cursor-pointer shadow-md`
                         : 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed'
                     }`}
                     title="הוסף גזע לרשימה הקבועה"
@@ -454,7 +464,7 @@ export default function AdminDashboard({
                             className="p-3 text-sm text-slate-700 hover:bg-purple-50 hover:text-purple-700 cursor-pointer flex items-center justify-between transition-colors"
                           >
                             <span>{breed}</span>
-                            {breedInput === breed && <Check className="w-4 h-4 text-purple-600" />}
+                            {breedInput === breed && <Check className="w-4 h-4 text-purple-650" />}
                           </li>
                         ))
                       )}
@@ -477,7 +487,7 @@ export default function AdminDashboard({
 
               <button
                 type="submit"
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-4 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 text-sm shadow-md shadow-purple-100 mt-6"
+                className={`w-full ${palette.primaryBg} text-white font-bold py-3 px-4 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 text-sm mt-6`}
               >
                 <Plus className="w-4 h-4" />
                 <span>רשום והמתן לתספורת</span>
@@ -485,6 +495,74 @@ export default function AdminDashboard({
             </form>
           </div>
 
+          {/* System Settings Panel */}
+          <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-md space-y-5">
+            <h2 className="text-sm font-black text-slate-800 border-b border-slate-100 pb-3 flex items-center gap-1.5">
+              <Settings className="w-4 h-4 text-slate-600" />
+              <span>הגדרות המערכת והטלוויזיה</span>
+            </h2>
+
+            {/* TV Sound Toggle */}
+            <div className="space-y-2">
+              <label className="block text-xs font-bold text-slate-500">שמע והתראות בטלוויזיה</label>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => onTvSoundToggle(true)}
+                  className={`flex-1 py-2 px-3 rounded-xl border text-xs font-extrabold transition-all cursor-pointer text-center ${
+                    tvSoundEnabled
+                      ? 'bg-emerald-50 border-emerald-300 text-emerald-700 shadow-xs'
+                      : 'bg-slate-50 border-slate-200 text-slate-400'
+                  }`}
+                >
+                  🔊 סאונד מופעל
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onTvSoundToggle(false)}
+                  className={`flex-1 py-2 px-3 rounded-xl border text-xs font-extrabold transition-all cursor-pointer text-center ${
+                    !tvSoundEnabled
+                      ? 'bg-rose-50 border-rose-300 text-rose-700 shadow-xs'
+                      : 'bg-slate-50 border-slate-200 text-slate-400'
+                  }`}
+                >
+                  🔇 טלוויזיה שקטה
+                </button>
+              </div>
+            </div>
+
+            {/* Design & Color Palette Selector */}
+            <div className="space-y-3 pt-2">
+              <label className="block text-xs font-bold text-slate-500">בחר פלטת צבעים למספרה</label>
+              <div className="grid grid-cols-1 gap-2">
+                {PALETTES_PREVIEW.map((p) => {
+                  const isSelected = p.id === palette.id;
+                  return (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => onPaletteChange(p.id)}
+                      className={`w-full flex items-center justify-between p-2.5 rounded-xl border transition-all cursor-pointer text-right ${
+                        isSelected
+                          ? 'border-purple-650 bg-purple-50/30 font-black shadow-xs'
+                          : 'border-slate-200 hover:bg-slate-50 font-bold'
+                      }`}
+                    >
+                      <span className="text-xs text-slate-700">{p.name}</span>
+                      
+                      {/* Color pills preview */}
+                      <div className="flex items-center gap-1 shrink-0">
+                        <span className="w-3.5 h-3.5 rounded-full border border-slate-300/40" style={{ backgroundColor: p.color1 }} />
+                        <span className="w-3.5 h-3.5 rounded-full border border-slate-300/40" style={{ backgroundColor: p.color2 }} />
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Demo Actions */}
           <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-md space-y-4">
             <h2 className="text-sm font-black text-slate-800 border-b border-slate-100 pb-2 flex items-center gap-1.5">
               <Sparkles className="w-4 h-4 text-amber-500" />
@@ -499,7 +577,7 @@ export default function AdminDashboard({
               </button>
               <button
                 onClick={onClearAll}
-                className="bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-650 p-2.5 rounded-lg font-bold transition-all cursor-pointer text-center"
+                className="bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-655 p-2.5 rounded-lg font-bold transition-all cursor-pointer text-center"
               >
                 נקה את כל הנתונים
               </button>
@@ -575,7 +653,7 @@ export default function AdminDashboard({
                           )}
                           <button
                             onClick={() => onStartTreatment(dog.id)}
-                            className="bg-purple-600 hover:bg-purple-700 text-white font-extrabold px-4 py-2.5 rounded-xl text-xs transition-all cursor-pointer shadow-md shadow-purple-100 flex items-center gap-1.5"
+                            className={`text-white font-extrabold px-4 py-2.5 rounded-xl text-xs transition-all cursor-pointer flex items-center gap-1.5 ${palette.primaryBg}`}
                           >
                             <Scissors className="w-3.5 h-3.5 rotate-45" />
                             <span>הכנס לטיפול (לטלוויזיה)</span>
@@ -807,7 +885,7 @@ export default function AdminDashboard({
       </div>
 
       {/* Footer */}
-      <footer className="mt-12 pt-6 border-t border-slate-200/60 flex justify-between text-slate-400 text-xs font-semibold">
+      <footer className={`mt-12 pt-6 border-t ${palette.borderCol} flex justify-between text-slate-400 text-xs font-semibold`}>
         <div>JOY 🐶 POLA • אבן גבירול 163, תל אביב</div>
         <div>מחובר למאגר מקומי (LocalStorage)</div>
       </footer>
