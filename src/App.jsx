@@ -320,6 +320,19 @@ export default function App() {
     return localStorage.getItem('grooming_tv_sound_enabled') !== 'false';
   });
 
+  // Business Profile Settings (persisted and synced across tabs)
+  const [businessAddress, setBusinessAddress] = useState(() => {
+    return localStorage.getItem('grooming_business_address') || 'אבן גבירול 163, תל אביב';
+  });
+
+  const [logoUrl, setLogoUrl] = useState(() => {
+    return localStorage.getItem('grooming_logo_url') || '/logo.jpg';
+  });
+
+  const [whatsappTemplate, setWhatsappTemplate] = useState(() => {
+    return localStorage.getItem('grooming_whatsapp_template') || 'שלום {owner}, הטיפול של {dog} בסלון JOY & POLA הסתיים בהצלחה והוא מוכן לאיסוף! 🐶✂️';
+  });
+
   // Refs to prevent recursive write/sync feedback loops
   const isSyncingDogsRef = useRef(false);
   const isSyncingHistoryRef = useRef(false);
@@ -403,13 +416,21 @@ export default function App() {
           console.error('Failed to sync grooming_history from another tab', err);
         }
       }
-      // Sync color palette changes
+      // Sync settings
       if (e.key === 'grooming_active_palette' && e.newValue) {
         setActivePaletteId(e.newValue);
       }
-      // Sync TV sound enabled setting
       if (e.key === 'grooming_tv_sound_enabled' && e.newValue) {
         setTvSoundEnabled(e.newValue !== 'false');
+      }
+      if (e.key === 'grooming_business_address' && e.newValue !== null) {
+        setBusinessAddress(e.newValue);
+      }
+      if (e.key === 'grooming_logo_url' && e.newValue !== null) {
+        setLogoUrl(e.newValue);
+      }
+      if (e.key === 'grooming_whatsapp_template' && e.newValue !== null) {
+        setWhatsappTemplate(e.newValue);
       }
       // Cross-tab real-time audio synchronization
       if (e.key === 'grooming_trigger_sound_event' && e.newValue) {
@@ -419,7 +440,6 @@ export default function App() {
           const soundEnabledSetting = localStorage.getItem('grooming_tv_sound_enabled') !== 'false';
           
           if (eventData && eventData.id) {
-            // Only play if on admin, or if TV sound is enabled
             if (!isTv || soundEnabledSetting) {
               triggerSound(eventData.id);
             }
@@ -463,21 +483,35 @@ export default function App() {
         console.error('Failed to poll history', e);
       }
 
-      // Poll palette ID
+      // Poll settings
       const savedPalette = localStorage.getItem('grooming_active_palette') || 'cream_classic';
       if (savedPalette !== activePaletteId) {
         setActivePaletteId(savedPalette);
       }
 
-      // Poll TV sound setting
       const savedTvSound = localStorage.getItem('grooming_tv_sound_enabled') !== 'false';
       if (savedTvSound !== tvSoundEnabled) {
         setTvSoundEnabled(savedTvSound);
       }
+
+      const savedAddress = localStorage.getItem('grooming_business_address') || 'אבן גבירול 163, תל אביב';
+      if (savedAddress !== businessAddress) {
+        setBusinessAddress(savedAddress);
+      }
+
+      const savedLogo = localStorage.getItem('grooming_logo_url') || '/logo.jpg';
+      if (savedLogo !== logoUrl) {
+        setLogoUrl(savedLogo);
+      }
+
+      const savedTemplate = localStorage.getItem('grooming_whatsapp_template') || 'שלום {owner}, הטיפול של {dog} בסלון JOY & POLA הסתיים בהצלחה והוא מוכן לאיסוף! 🐶✂️';
+      if (savedTemplate !== whatsappTemplate) {
+        setWhatsappTemplate(savedTemplate);
+      }
     }, 800);
 
     return () => clearInterval(interval);
-  }, [dogs, history, activePaletteId, tvSoundEnabled]);
+  }, [dogs, history, activePaletteId, tvSoundEnabled, businessAddress, logoUrl, whatsappTemplate]);
 
   const handleRegisterDog = (newDog) => {
     const dogWithId = {
@@ -644,6 +678,21 @@ export default function App() {
     localStorage.setItem('grooming_tv_sound_enabled', enabled ? 'true' : 'false');
   };
 
+  const handleBusinessAddressChange = (address) => {
+    setBusinessAddress(address);
+    localStorage.setItem('grooming_business_address', address);
+  };
+
+  const handleLogoUrlChange = (url) => {
+    setLogoUrl(url);
+    localStorage.setItem('grooming_logo_url', url);
+  };
+
+  const handleWhatsappTemplateChange = (template) => {
+    setWhatsappTemplate(template);
+    localStorage.setItem('grooming_whatsapp_template', template);
+  };
+
   if (currentPath === '/admin') {
     if (!isAdminAuthenticated) {
       return (
@@ -662,8 +711,14 @@ export default function App() {
         history={history}
         palette={activePalette}
         tvSoundEnabled={tvSoundEnabled}
+        businessAddress={businessAddress}
+        logoUrl={logoUrl}
+        whatsappTemplate={whatsappTemplate}
         onPaletteChange={handlePaletteChange}
         onTvSoundToggle={handleTvSoundToggle}
+        onBusinessAddressChange={handleBusinessAddressChange}
+        onLogoUrlChange={handleLogoUrlChange}
+        onWhatsappTemplateChange={handleWhatsappTemplateChange}
         onRegisterDog={handleRegisterDog}
         onStartTreatment={handleStartTreatment}
         onFinishTreatment={handleFinishTreatment}
@@ -680,6 +735,8 @@ export default function App() {
     <TvDisplay 
       dogs={dogs.filter((dog) => dog.status === 'active')} 
       palette={activePalette}
+      businessAddress={businessAddress}
+      logoUrl={logoUrl}
       navigate={navigate}
     />
   );

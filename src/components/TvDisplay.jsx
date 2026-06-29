@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import DogCard from './DogCard';
 import { Calendar, Clock, Smile, Plus, Bone } from 'lucide-react';
 
-export default function TvDisplay({ dogs, palette, navigate }) {
+export default function TvDisplay({ dogs, palette, businessAddress, logoUrl, navigate }) {
   const [currentDate, setCurrentDate] = useState(new Date());
 
   // Real-time clock in the header
@@ -85,11 +85,11 @@ export default function TvDisplay({ dogs, palette, navigate }) {
         <div className="flex items-center gap-4 md:gap-5 text-right">
           <div className="bg-white p-2 rounded-2xl shadow-md border border-slate-150 flex items-center justify-center overflow-hidden shrink-0">
             <img 
-              src="/logo.jpg" 
+              src={logoUrl || "/logo.jpg"} 
               className="h-16 md:h-24 lg:h-28 w-auto object-contain" 
               alt="Joy & Pola Logo" 
               onError={(e) => {
-                e.target.style.display = 'none';
+                e.target.src = "/logo.jpg"; // Fallback to local if URL fails
               }}
             />
           </div>
@@ -100,8 +100,8 @@ export default function TvDisplay({ dogs, palette, navigate }) {
               </h1>
               <Bone className={`w-6 h-6 rotate-12 animate-bounce ${palette.accentText}`} />
             </div>
-            <p className="text-slate-650 text-xs md:text-sm font-bold mt-1.5">
-              אבן גבירול 163, תל אביב • לוח מעקב טיפולים חי
+            <p className="text-slate-655 text-xs md:text-sm font-bold mt-1.5">
+              {businessAddress || 'אבן גבירול 163, תל אביב'} • לוח מעקב טיפולים חי
             </p>
           </div>
         </div>
@@ -171,7 +171,7 @@ export default function TvDisplay({ dogs, palette, navigate }) {
 
       {/* Subtle bottom informational bar with tiny, low-profile admin link */}
       <footer className={`flex-shrink-0 mt-4 lg:mt-6 pt-4 border-t ${palette.borderCol} flex justify-between text-slate-400 text-xs font-semibold z-10`}>
-        <div>JOY 🐶 POLA • אבן גבירול 163, תל אביב</div>
+        <div>JOY 🐶 POLA • {businessAddress || 'אבן גבירול 163, תל אביב'}</div>
         <button
           onClick={() => navigate('/admin')}
           className="text-slate-400 hover:text-blue-800 transition-colors duration-200 cursor-pointer font-bold"

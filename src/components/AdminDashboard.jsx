@@ -57,8 +57,14 @@ export default function AdminDashboard({
   history,
   palette,
   tvSoundEnabled,
+  businessAddress,
+  logoUrl,
+  whatsappTemplate,
   onPaletteChange,
   onTvSoundToggle,
+  onBusinessAddressChange,
+  onLogoUrlChange,
+  onWhatsappTemplateChange,
   onRegisterDog,
   onStartTreatment,
   onFinishTreatment,
@@ -223,7 +229,12 @@ export default function AdminDashboard({
     if (cleanPhone.startsWith('05')) {
       cleanPhone = '972' + cleanPhone.slice(1);
     }
-    const message = `שלום ${ownerName}, הטיפול של ${dogName} בסלון הכלבים העליז הסתיים בהצלחה והוא מוכן לאיסוף! 🐶✂️`;
+    
+    // Dynamic replacement in WhatsApp template
+    let message = whatsappTemplate
+      .replace(/{owner}/g, ownerName || 'לקוח יקר')
+      .replace(/{dog}/g, dogName);
+
     return `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`;
   };
 
@@ -307,11 +318,11 @@ export default function AdminDashboard({
         <div className="flex items-center gap-4">
           <div className="bg-white p-1 rounded-2xl shadow-md border border-slate-100 flex items-center justify-center overflow-hidden shrink-0">
             <img 
-              src="/logo.jpg" 
+              src={logoUrl || "/logo.jpg"} 
               className="h-14 w-auto object-contain" 
               alt="Joy & Pola Logo" 
               onError={(e) => {
-                e.target.style.display = 'none';
+                e.target.src = "/logo.jpg";
               }}
             />
           </div>
@@ -321,7 +332,7 @@ export default function AdminDashboard({
               <Bone className={`w-5 h-5 rotate-12 ${palette.accentText}`} />
             </h1>
             <p className="text-slate-655 text-xs font-bold mt-1.5">
-              אבן גבירול 163, תל אביב • ניהול תורים, צלילי התראה חזקים ומעוצבים (שעון מעורר) וחריגות זמן
+              {businessAddress || 'אבן גבירול 163, תל אביב'} • ניהול תורים, צלילי התראה חזקים ומעוצבים (שעון מעורר) וחריגות זמן
             </p>
           </div>
         </div>
@@ -832,7 +843,7 @@ export default function AdminDashboard({
       {isSettingsOpen && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4" dir="rtl" onClick={() => setIsSettingsOpen(false)}>
           <div 
-            className="bg-white rounded-3xl border border-slate-200 max-w-md w-full p-6 shadow-2xl space-y-5 animate-fade-in text-right"
+            className="bg-white rounded-3xl border border-slate-200 max-w-lg w-full p-6 shadow-2xl space-y-5 animate-fade-in text-right max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
           >
             
@@ -877,6 +888,49 @@ export default function AdminDashboard({
                   🔇 טלוויזיה שקטה
                 </button>
               </div>
+            </div>
+
+            {/* Business Logo URL input */}
+            <div className="space-y-1.5 pt-1">
+              <label className="block text-xs font-bold text-slate-500">כתובת קישור לתמונת לוגו (URL)</label>
+              <input
+                type="text"
+                placeholder="הכנס כתובת תמונה מהאינטרנט או השאר ריק לברירת מחדל..."
+                value={logoUrl === '/logo.jpg' ? '' : logoUrl}
+                onChange={(e) => onLogoUrlChange(e.target.value.trim() || '/logo.jpg')}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:bg-white font-medium transition-all"
+                dir="ltr"
+              />
+              <p className="text-[10px] text-slate-450 leading-tight">
+                הלוגו מתעדכן במסך הציבורי ובניהול. השאר ריק לחזרה ללוגו הקיים.
+              </p>
+            </div>
+
+            {/* Business Address input */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-slate-500">כתובת המספרה</label>
+              <input
+                type="text"
+                placeholder="הקלד את כתובת המספרה להצגה..."
+                value={businessAddress}
+                onChange={(e) => onBusinessAddressChange(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:bg-white font-medium transition-all"
+              />
+            </div>
+
+            {/* WhatsApp message template textarea */}
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-slate-500">נוסח הודעת וואטסאפ אוטומטית</label>
+              <textarea
+                rows="3"
+                placeholder="נוסח הודעת וואטסאפ לסיום תספורת..."
+                value={whatsappTemplate}
+                onChange={(e) => onWhatsappTemplateChange(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-850 placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:bg-white font-medium transition-all resize-none leading-relaxed"
+              />
+              <p className="text-[10px] text-slate-450 leading-tight">
+                השתמש ב- <span className="font-bold">{'{owner}'}</span> עבור שם הבעלים, וב- <span className="font-bold">{'{dog}'}</span> עבור שם הכלב.
+              </p>
             </div>
 
             {/* Color Palette Selector */}
@@ -926,7 +980,7 @@ export default function AdminDashboard({
 
       {/* Footer */}
       <footer className={`mt-12 pt-6 border-t ${palette.borderCol} flex justify-between text-slate-400 text-xs font-semibold`}>
-        <div>JOY 🐶 POLA • אבן גבירול 163, תל אביב</div>
+        <div>JOY 🐶 POLA • {businessAddress || 'אבן גבירול 163, תל אביב'}</div>
         <div>מחובר למאגר מקומי (LocalStorage)</div>
       </footer>
     </div>
