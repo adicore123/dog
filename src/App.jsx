@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import TvDisplay from './components/TvDisplay';
 import AdminDashboard from './components/AdminDashboard';
 import AdminLogin from './components/AdminLogin';
+import ClientDogStatus from './components/ClientDogStatus';
 
 // 5 stylish Tel Avivian feminine-focused color palettes
 export const PALETTES = [
@@ -737,6 +738,21 @@ export default function App() {
         onClearAll={handleClearAll}
         onTriggerSound={handleTriggerSound}
         navigate={navigate}
+      />
+    );
+  }
+
+  if (currentPath === '/status') {
+    const queryParams = new URLSearchParams(window.location.search);
+    const dogId = queryParams.get('id');
+    return (
+      <ClientDogStatus
+        dogId={dogId}
+        dogs={dogs}
+        history={history}
+        palette={activePalette}
+        businessAddress={businessAddress}
+        logoUrl={logoUrl}
       />
     );
   }

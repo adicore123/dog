@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, Smile, Scissors, Plus, Bone, Trash2, ArrowLeft, AlertCircle, Sparkles, Search, Check, FileText, Volume2, Settings, Edit2, Lock } from 'lucide-react';
+import { Calendar, Clock, Smile, Scissors, Plus, Bone, Trash2, ArrowLeft, AlertCircle, Sparkles, Search, Check, FileText, Volume2, Settings, Edit2, Lock, Eye } from 'lucide-react';
 
 const COMMON_BREEDS = [
   'שיצו',
@@ -244,6 +244,23 @@ export default function AdminDashboard({
       .replace(/{dog}/g, dogName);
 
     return `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`;
+  };
+
+  // Generate tracking link and send via WhatsApp
+  const handleSendTrackingLink = (dog) => {
+    if (!dog.phone) return;
+    
+    // Generate live status tracker URL using current origin
+    const trackingLink = `${window.location.origin}/status?id=${dog.id}`;
+    
+    let cleanPhone = dog.phone.replace(/\D/g, '');
+    if (cleanPhone.startsWith('05')) {
+      cleanPhone = '972' + cleanPhone.slice(1);
+    }
+    
+    const message = `שלום ${dog.ownerName || 'לקוח יקר'}, כאן מספרת JOY & POLA! תוכל לעקוב אחר קצב הטיפול והזמן הנותר של ${dog.dogName} בלייב בקישור הבא: ${trackingLink} 🐾`;
+    
+    window.open(`https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`, '_blank');
   };
 
   // Compressed Image Upload Reader (Base64 Canvas Optimization to fit LocalStorage)
@@ -655,11 +672,11 @@ export default function AdminDashboard({
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-3.5 justify-end shrink-0">
+                        <div className="flex flex-wrap items-center gap-2 justify-end shrink-0">
                           {/* Edit button */}
                           <button
                             onClick={() => setEditingDog(dog)}
-                            className="text-slate-400 hover:text-indigo-600 p-2 rounded-xl hover:bg-slate-100 transition-all cursor-pointer"
+                            className="text-slate-450 hover:text-indigo-650 p-2 rounded-xl hover:bg-slate-100 transition-all cursor-pointer"
                             title="ערוך פרטי כלב"
                           >
                             <Edit2 className="w-4 h-4" />
@@ -668,11 +685,23 @@ export default function AdminDashboard({
                           {/* Delete button (Requires admin password) */}
                           <button
                             onClick={() => setDeletingDogId(dog.id)}
-                            className="text-slate-400 hover:text-red-650 p-2 rounded-xl hover:bg-red-50 transition-all cursor-pointer"
+                            className="text-slate-455 hover:text-red-650 p-2 rounded-xl hover:bg-red-50 transition-all cursor-pointer"
                             title="מחק כרטיס (דורש סיסמה)"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
+
+                          {dog.phone && (
+                            /* Send tracking link button */
+                            <button
+                              onClick={() => handleSendTrackingLink(dog)}
+                              className="bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 p-2.5 rounded-xl transition-all shadow-xs flex items-center justify-center cursor-pointer gap-1 text-xs font-bold"
+                              title="שלח קישור מעקב לייב ללקוח"
+                            >
+                              <Eye className="w-4 h-4" />
+                              <span>מעקב</span>
+                            </button>
+                          )}
 
                           {dog.phone && (
                             <a
@@ -685,6 +714,7 @@ export default function AdminDashboard({
                               <WhatsAppIcon />
                             </a>
                           )}
+                          
                           <button
                             onClick={() => onStartTreatment(dog.id)}
                             className={`text-white font-extrabold px-4 py-2.5 rounded-xl text-xs transition-all cursor-pointer flex items-center gap-1.5 ${palette.primaryBg}`}
@@ -747,15 +777,15 @@ export default function AdminDashboard({
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-3 justify-end shrink-0 text-left">
-                          <div className="font-mono font-bold text-slate-700 bg-slate-200/60 px-3 py-1.5 rounded-lg border border-slate-250 text-xs">
+                        <div className="flex flex-wrap items-center gap-2 justify-end shrink-0 text-left">
+                          <div className="font-mono font-bold text-slate-700 bg-slate-200/60 px-3 py-2.5 rounded-lg border border-slate-250 text-xs">
                             {formatActiveTime(dog.startTime)}
                           </div>
 
                           {/* Edit button */}
                           <button
                             onClick={() => setEditingDog(dog)}
-                            className="text-slate-400 hover:text-indigo-600 p-2 rounded-xl hover:bg-slate-100 transition-all cursor-pointer"
+                            className="text-slate-450 hover:text-indigo-600 p-2 rounded-xl hover:bg-slate-100 transition-all cursor-pointer"
                             title="ערוך פרטי כלב"
                           >
                             <Edit2 className="w-4 h-4" />
@@ -764,11 +794,23 @@ export default function AdminDashboard({
                           {/* Delete button (Requires admin password) */}
                           <button
                             onClick={() => setDeletingDogId(dog.id)}
-                            className="text-slate-400 hover:text-red-655 p-2 rounded-xl hover:bg-red-50 transition-all cursor-pointer"
+                            className="text-slate-455 hover:text-red-655 p-2 rounded-xl hover:bg-red-50 transition-all cursor-pointer"
                             title="מחק כרטיס (דורש סיסמה)"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
+
+                          {dog.phone && (
+                            /* Send tracking link button */
+                            <button
+                              onClick={() => handleSendTrackingLink(dog)}
+                              className="bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 p-2.5 rounded-xl transition-all shadow-xs flex items-center justify-center cursor-pointer gap-1 text-xs font-bold"
+                              title="שלח קישור מעקב לייב ללקוח"
+                            >
+                              <Eye className="w-4 h-4" />
+                              <span>מעקב</span>
+                            </button>
+                          )}
 
                           {dog.phone && (
                             <a
@@ -1197,7 +1239,7 @@ export default function AdminDashboard({
           setDeleteError('');
         }}>
           <div 
-            className="bg-white rounded-3xl border border-slate-200 max-w-sm w-full p-6 shadow-2xl space-y-4 animate-fade-in text-right"
+            className="bg-white rounded-3xl border border-slate-200 max-sm w-full p-6 shadow-2xl space-y-4 animate-fade-in text-right"
             onClick={(e) => e.stopPropagation()} // Prevent close on inner clicks
           >
             <div className="flex items-center gap-2 text-red-655 border-b border-slate-100 pb-3">
@@ -1206,7 +1248,7 @@ export default function AdminDashboard({
             </div>
 
             <p className="text-xs text-slate-500 leading-relaxed font-semibold">
-              מחיקת כרטיס כלב מהמערכת היא פעולה לצמיתות. אנא הזן את סיסמת המנהל לאישור המחיקה:
+              מחיקת כרטיס כלב מהמערכת היא פעולה לצמיתות. אנו דורשים להזין את סיסמת המנהל לאישור המחיקה:
             </p>
 
             <div className="space-y-1.5">
