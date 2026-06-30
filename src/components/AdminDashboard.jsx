@@ -451,7 +451,7 @@ export default function AdminDashboard({
   });
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${palette.bgClass} p-3 sm:p-6 md:p-10 select-none text-right flex flex-col font-sans`} dir="rtl">
+    <div className={`min-h-screen overflow-x-hidden w-full max-w-[100vw] bg-gradient-to-br ${palette.bgClass} p-3 sm:p-6 md:p-10 select-none text-right flex flex-col font-sans`} dir="rtl">
       
       {/* Header */}
       <header className={`flex flex-col items-start justify-between border-b ${palette.borderCol} pb-4 sm:pb-6 mb-6 sm:mb-8 gap-4`}>
@@ -1004,8 +1004,8 @@ export default function AdminDashboard({
       </div>
 
       {/* FULL-WIDTH COLUMN: HISTORY TABLE */}
-      <div className="grid grid-span-12 mt-4 sm:mt-8 z-10">
-        <div className={`rounded-2xl sm:rounded-3xl border p-3 sm:p-6 shadow-md ${palette.isDark ? 'bg-slate-900/80 border-slate-855 text-slate-100' : 'bg-white border-slate-200/80 text-slate-800'}`}>
+      <div className="w-full mt-4 sm:mt-8 z-10">
+        <div className={`rounded-2xl sm:rounded-3xl border p-3 sm:p-6 shadow-md overflow-hidden ${palette.isDark ? 'bg-slate-900/80 border-slate-855 text-slate-100' : 'bg-white border-slate-200/80 text-slate-800'}`}>
           
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between border-b border-slate-150/15 pb-4 mb-6 gap-4">
             <h2 className="text-lg font-black flex items-center gap-2">
@@ -1073,7 +1073,7 @@ export default function AdminDashboard({
             </div>
           ) : (
             <div className={`overflow-x-auto rounded-xl border ${palette.isDark ? 'border-slate-850' : 'border-slate-100'}`}>
-              <table className="w-full text-right border-collapse text-xs">
+              <table className="w-full text-right border-collapse text-xs min-w-[800px]">
                 <thead>
                   <tr className={`border-b font-black ${palette.isDark ? 'bg-slate-900 border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-550'}`}>
                     <th className="p-4">שם הכלב</th>
