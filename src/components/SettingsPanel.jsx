@@ -96,15 +96,27 @@ export default function SettingsPanel({ history = [], dogs = [], navigate, isSys
   const [activeTab, setActiveTab] = useState('logs');
 
   // Load access log
-  const accessLog = (() => {
+  const [accessLog, setAccessLog] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem('grooming_access_log') || '[]');
     } catch { return []; }
-  })();
+  });
+
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'grooming_access_log') {
+        try {
+          setAccessLog(JSON.parse(e.newValue || '[]'));
+        } catch { setAccessLog([]); }
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   const clearAccessLog = () => {
     localStorage.removeItem('grooming_access_log');
-    window.location.reload();
+    setAccessLog([]);
   };
 
   const handleDisableSystem = () => {
