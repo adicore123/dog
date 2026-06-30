@@ -517,6 +517,14 @@ export default function AdminDashboard({
           </button>
 
           <button
+            onClick={() => navigate('/settings')}
+            className={`${palette.isDark ? 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-800' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'} flex items-center gap-1.5 py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl border shadow-sm transition-all cursor-pointer text-xs font-bold`}
+          >
+            <span>⚙️</span>
+            <span className="hidden sm:inline">הגדרות מערכת</span>
+          </button>
+
+          <button
             onClick={() => navigate('/')}
             className={`${palette.isDark ? 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-800' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'} flex items-center gap-1.5 py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl border shadow-sm transition-all cursor-pointer text-xs font-bold`}
           >

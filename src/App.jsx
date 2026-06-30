@@ -3,6 +3,7 @@ import TvDisplay from './components/TvDisplay';
 import AdminDashboard from './components/AdminDashboard';
 import AdminLogin from './components/AdminLogin';
 import ClientDogStatus from './components/ClientDogStatus';
+import SettingsPanel from './components/SettingsPanel';
 
 // 7 stylish Tel Avivian designer color palettes (including 2 premium dark/neon themes)
 export const PALETTES = [
@@ -736,6 +737,36 @@ export default function App() {
     setWhatsappTemplate(template);
     localStorage.setItem('grooming_whatsapp_template', template);
   };
+
+  if (currentPath === '/settings') {
+    return (
+      <SettingsPanel
+        history={history}
+        dogs={dogs}
+        navigate={navigate}
+      />
+    );
+  }
+
+  // Check if system is disabled — redirect everything except /settings to a shutdown screen
+  const isSystemDisabled = localStorage.getItem('grooming_system_disabled') === 'true';
+  if (isSystemDisabled && currentPath !== '/settings') {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 text-white font-sans" dir="rtl">
+        <div className="text-center space-y-5 p-8">
+          <div className="text-6xl">⛔</div>
+          <h1 className="text-2xl font-black text-slate-200">המערכת כבויה כרגע</h1>
+          <p className="text-slate-400 text-sm max-w-xs mx-auto">המספרה אינה פעילה כרגע. אנא חזור מאוחר יותר.</p>
+          <button
+            onClick={() => navigate('/settings')}
+            className="mt-4 px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold transition-all cursor-pointer"
+          >
+            כניסה לדף הגדרות
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (currentPath === '/admin') {
     if (!isAdminAuthenticated) {
