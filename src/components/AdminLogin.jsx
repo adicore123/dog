@@ -10,6 +10,13 @@ export default function AdminLogin({ onLogin, navigate }) {
     e.preventDefault();
     if (password === '123123') {
       setError(false);
+      // Record this login access
+      try {
+        const existing = JSON.parse(localStorage.getItem('grooming_access_log') || '[]');
+        existing.unshift({ timestamp: Date.now() });
+        // Keep last 200 entries
+        localStorage.setItem('grooming_access_log', JSON.stringify(existing.slice(0, 200)));
+      } catch (_) {}
       onLogin();
     } else {
       setError(true);
