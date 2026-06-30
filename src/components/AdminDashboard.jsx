@@ -451,53 +451,53 @@ export default function AdminDashboard({
   });
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br ${palette.bgClass} p-6 md:p-10 select-none text-right flex flex-col font-sans`} dir="rtl">
+    <div className={`min-h-screen bg-gradient-to-br ${palette.bgClass} p-3 sm:p-6 md:p-10 select-none text-right flex flex-col font-sans`} dir="rtl">
       
       {/* Header */}
-      <header className={`flex flex-col md:flex-row items-start md:items-center justify-between border-b ${palette.borderCol} pb-6 mb-8 gap-4`}>
-        <div className="flex items-center gap-4">
+      <header className={`flex flex-col items-start justify-between border-b ${palette.borderCol} pb-4 sm:pb-6 mb-6 sm:mb-8 gap-4`}>
+        <div className="flex items-center gap-3 sm:gap-4">
           <div className="bg-white p-1 rounded-2xl shadow-md border border-slate-100 flex items-center justify-center overflow-hidden shrink-0">
             <img 
               src={logoUrl || "/logo.jpg"} 
-              className="h-14 w-auto object-contain" 
+              className="h-10 sm:h-14 w-auto object-contain" 
               alt="Joy & Pola Logo" 
               onError={(e) => {
                 e.target.src = "/logo.jpg";
               }}
             />
           </div>
-          <div>
-            <h1 className={`text-2xl font-black tracking-tight leading-none flex items-center gap-2 ${palette.primaryText}`}>
-              <span>ממשק ניהול - JOY 🐶 POLA</span>
-              <Bone className={`w-5 h-5 rotate-12 ${palette.accentText}`} />
+          <div className="min-w-0">
+            <h1 className={`text-lg sm:text-2xl font-black tracking-tight leading-none flex items-center gap-2 ${palette.primaryText}`}>
+              <span className="truncate">JOY 🐶 POLA</span>
+              <Bone className={`w-4 sm:w-5 h-4 sm:h-5 rotate-12 shrink-0 ${palette.accentText}`} />
             </h1>
-            <p className={`${palette.isDark ? 'text-slate-350' : 'text-slate-655'} text-xs font-bold mt-1.5`}>
-              {businessAddress || 'אבן גבירול 163, תל אביב'} • ניהול תורים, צלילי התראה חזקים ומעוצבים (שעון מעורר) וחריגות זמן
+            <p className={`${palette.isDark ? 'text-slate-350' : 'text-slate-655'} text-[10px] sm:text-xs font-bold mt-1 truncate`}>
+              {businessAddress || 'אבן גבירול 163, תל אביב'} • ניהול תורים
             </p>
           </div>
         </div>
 
         {/* Action Controls */}
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full">
           
           {/* Settings Trigger Button */}
           <button
             onClick={() => setIsSettingsOpen(true)}
-            className={`${palette.isDark ? 'bg-slate-900 border-slate-800 text-slate-200 hover:bg-slate-800' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100'} flex items-center gap-1.5 py-2.5 px-4 rounded-xl border shadow-xs transition-all cursor-pointer text-xs font-bold`}
-            title="פתר פאנל הגדרות מערכת וצבעים"
+            className={`${palette.isDark ? 'bg-slate-900 border-slate-800 text-slate-200 hover:bg-slate-800' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-100'} flex items-center gap-1.5 py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl border shadow-xs transition-all cursor-pointer text-xs font-bold`}
+            title="פתח פאנל הגדרות מערכת וצבעים"
           >
-            <Settings className="w-4 h-4 ml-1 text-slate-500" />
-            <span>הגדרות ⚙️</span>
+            <Settings className="w-4 h-4 text-slate-500" />
+            <span className="hidden sm:inline">הגדרות</span>
+            <span className="sm:hidden">⚙️</span>
           </button>
 
           {/* Sound Selector Dropdown */}
-          <div className={`flex items-center gap-1.5 border rounded-xl px-3 py-1.5 shadow-xs ${palette.isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
-            <Volume2 className="w-4 h-4 text-purple-600" />
-            <label className="text-[10px] font-bold text-slate-500">צליל מעורר:</label>
+          <div className={`flex items-center gap-1.5 border rounded-xl px-2 sm:px-3 py-1.5 shadow-xs ${palette.isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
+            <Volume2 className="w-4 h-4 text-purple-600 shrink-0" />
             <select
               value={selectedSound}
               onChange={handleSoundChange}
-              className={`text-xs font-bold bg-transparent border-0 focus:outline-none cursor-pointer pr-1 ${palette.isDark ? 'text-slate-300' : 'text-slate-700'}`}
+              className={`text-xs font-bold bg-transparent border-0 focus:outline-none cursor-pointer pr-1 max-w-[100px] sm:max-w-none ${palette.isDark ? 'text-slate-300' : 'text-slate-700'}`}
             >
               {SOUND_PRESETS.map((preset) => (
                 <option key={preset.id} value={preset.id} className={palette.isDark ? 'bg-slate-950 text-slate-300' : 'bg-white text-slate-750'}>
@@ -510,27 +510,28 @@ export default function AdminDashboard({
           {/* Test Sound Button */}
           <button
             onClick={() => onTriggerSound(selectedSound)}
-            className={`${palette.isDark ? 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800' : 'bg-white border-slate-200 text-slate-655 hover:bg-slate-100'} flex items-center gap-1.5 py-2.5 px-4 rounded-xl border shadow-xs transition-all cursor-pointer text-xs font-bold`}
+            className={`${palette.isDark ? 'bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800' : 'bg-white border-slate-200 text-slate-655 hover:bg-slate-100'} flex items-center gap-1.5 py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl border shadow-xs transition-all cursor-pointer text-xs font-bold`}
             title="השמע בדיקה לצליל שבחרת"
           >
-            <span>השמע בדיקה 🔊</span>
+            <span>🔊</span>
           </button>
 
           <button
             onClick={() => navigate('/')}
-            className={`${palette.isDark ? 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-800' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'} flex items-center gap-1.5 py-2.5 px-4 rounded-xl border shadow-sm transition-all cursor-pointer text-xs font-bold`}
+            className={`${palette.isDark ? 'bg-slate-900 hover:bg-slate-800 text-slate-300 border-slate-800' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-200'} flex items-center gap-1.5 py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl border shadow-sm transition-all cursor-pointer text-xs font-bold`}
           >
-            <ArrowLeft className="w-4 h-4 ml-1.5" />
-            <span>מעבר למסך ציבורי (טלוויזיה)</span>
+            <ArrowLeft className="w-4 h-4" />
+            <span className="hidden sm:inline">מסך ציבורי</span>
+            <span className="sm:hidden">📺</span>
           </button>
         </div>
       </header>
 
       {/* Main Grid */}
-      <div className="flex flex-col xl:grid xl:grid-cols-12 gap-8 items-start">
+      <div className="flex flex-col xl:grid xl:grid-cols-12 gap-4 sm:gap-8 items-start">
         
         {/* RIGHT COLUMN: REGISTRATION & DEMO ACTIONS (4 cols) */}
-        <div className="w-full order-2 xl:order-none xl:col-span-4 space-y-6">
+        <div className="w-full order-2 xl:order-none xl:col-span-4 space-y-4 sm:space-y-6">
           
           {/* Register Card — collapsible */}
           <div className={`rounded-3xl border shadow-md overflow-hidden transition-all ${palette.isDark ? 'bg-slate-900/80 border-slate-850 text-slate-100' : 'bg-white border-slate-200/80 text-slate-800'}`}>
@@ -745,7 +746,7 @@ export default function AdminDashboard({
         <div className="w-full order-1 xl:order-none xl:col-span-8 space-y-6">
           
           {/* Waiting Queue */}
-          <div className={`rounded-3xl border p-6 shadow-md ${palette.isDark ? 'bg-slate-900/80 border-slate-855 text-slate-100' : 'bg-white border-slate-200/80 text-slate-800'}`}>
+          <div className={`rounded-2xl sm:rounded-3xl border p-3 sm:p-6 shadow-md ${palette.isDark ? 'bg-slate-900/80 border-slate-855 text-slate-100' : 'bg-white border-slate-200/80 text-slate-800'}`}>
             <h2 className="text-lg font-black border-b border-slate-100/10 pb-3 mb-4 flex items-center justify-between">
               <span className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
@@ -775,29 +776,29 @@ export default function AdminDashboard({
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div className="text-right">
-                          <div className="flex items-center gap-2">
-                            <span className="font-black text-base">{dog.dogName}</span>
-                            <span className={`text-xs font-bold py-0.5 px-2 rounded-lg border ${palette.isDark ? 'bg-indigo-950/50 border-indigo-900/60 text-indigo-300' : 'bg-indigo-50 border-indigo-100 text-indigo-700'}`}>
+                          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                            <span className="font-black text-sm sm:text-base">{dog.dogName}</span>
+                            <span className={`text-[10px] sm:text-xs font-bold py-0.5 px-1.5 sm:px-2 rounded-lg border ${palette.isDark ? 'bg-indigo-950/50 border-indigo-900/60 text-indigo-300' : 'bg-indigo-50 border-indigo-100 text-indigo-700'}`}>
                               {dog.breed}
                             </span>
                             {isAlert && (
-                              <span className={`flex items-center gap-1 border text-[10px] font-black py-0.5 px-2 rounded-md animate-pulse ${
+                              <span className={`flex items-center gap-1 border text-[10px] font-black py-0.5 px-1.5 rounded-md animate-pulse ${
                                 palette.isDark
                                   ? 'bg-rose-500/20 border-rose-500/40 text-rose-200'
                                   : 'bg-rose-100 border-rose-300 text-rose-700'
                               }`}>
                                 <AlertCircle className="w-3 h-3" />
-                                <span>המתנה חריגה! ({waitMinutes} דק')</span>
+                                <span>{waitMinutes} דק'!</span>
                               </span>
                             )}
                           </div>
                           
-                          <div className={`text-xs mt-1 font-medium space-x-2 space-x-reverse ${palette.isDark ? 'text-slate-400' : 'text-slate-550'}`}>
+                          <div className={`text-[10px] sm:text-xs mt-1 font-medium flex flex-wrap gap-x-1.5 gap-y-0.5 ${palette.isDark ? 'text-slate-400' : 'text-slate-550'}`}>
                             <span>בעלים: {dog.ownerName || 'לא צוין'}</span>
-                            <span>•</span>
+                            <span className="hidden sm:inline">•</span>
                             <span className="font-mono">{dog.phone || 'אין טלפון'}</span>
-                            <span>•</span>
-                            <span className="font-mono text-slate-450">הגעה: {formatTimeOfDay(dog.arrivalTime)} ({waitMinutes} דק' במספרה)</span>
+                            <span className="hidden sm:inline">•</span>
+                            <span className="font-mono text-slate-450">הגעה: {formatTimeOfDay(dog.arrivalTime)} ({waitMinutes} דק')</span>
                           </div>
                         </div>
 
@@ -878,7 +879,7 @@ export default function AdminDashboard({
           </div>
 
           {/* Active Treatments */}
-          <div className={`rounded-3xl border p-6 shadow-md ${palette.isDark ? 'bg-slate-900/80 border-slate-855 text-slate-100' : 'bg-white border-slate-200/80 text-slate-800'}`}>
+          <div className={`rounded-2xl sm:rounded-3xl border p-3 sm:p-6 shadow-md ${palette.isDark ? 'bg-slate-900/80 border-slate-855 text-slate-100' : 'bg-white border-slate-200/80 text-slate-800'}`}>
             <h2 className="text-lg font-black border-b border-slate-100/10 pb-3 mb-4 flex items-center justify-between">
               <span className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
@@ -902,18 +903,18 @@ export default function AdminDashboard({
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div className="text-right">
-                          <div className="flex items-center gap-2">
-                            <span className="font-black text-base">{dog.dogName}</span>
-                            <span className={`text-xs font-bold py-0.5 px-2 rounded-lg border ${palette.isDark ? 'bg-indigo-950/50 border-indigo-900/60 text-indigo-300' : 'bg-indigo-50 border-indigo-100 text-indigo-700'}`}>
+                          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                            <span className="font-black text-sm sm:text-base">{dog.dogName}</span>
+                            <span className={`text-[10px] sm:text-xs font-bold py-0.5 px-1.5 sm:px-2 rounded-lg border ${palette.isDark ? 'bg-indigo-950/50 border-indigo-900/60 text-indigo-300' : 'bg-indigo-50 border-indigo-100 text-indigo-700'}`}>
                               {dog.breed}
                             </span>
                           </div>
-                          <div className={`text-xs mt-1 font-medium space-x-2 space-x-reverse ${palette.isDark ? 'text-slate-400' : 'text-slate-550'}`}>
+                          <div className={`text-[10px] sm:text-xs mt-1 font-medium flex flex-wrap gap-x-1.5 gap-y-0.5 ${palette.isDark ? 'text-slate-400' : 'text-slate-550'}`}>
                             <span>בעלים: {dog.ownerName || 'לא צוין'}</span>
-                            <span>•</span>
+                            <span className="hidden sm:inline">•</span>
                             <span className="font-mono">{dog.phone || 'אין טלפון'}</span>
-                            <span>•</span>
-                            <span className="font-mono text-slate-450">התחלה: {formatTimeOfDay(dog.startTime)} (סך הכל במספרה: {totalGroomingMinutes} דק')</span>
+                            <span className="hidden sm:inline">•</span>
+                            <span className="font-mono text-slate-450">התחלה: {formatTimeOfDay(dog.startTime)} ({totalGroomingMinutes} דק')</span>
                           </div>
                         </div>
 
@@ -1003,8 +1004,8 @@ export default function AdminDashboard({
       </div>
 
       {/* FULL-WIDTH COLUMN: HISTORY TABLE */}
-      <div className="grid grid-span-12 mt-8 z-10">
-        <div className={`rounded-3xl border p-6 shadow-md ${palette.isDark ? 'bg-slate-900/80 border-slate-855 text-slate-100' : 'bg-white border-slate-200/80 text-slate-800'}`}>
+      <div className="grid grid-span-12 mt-4 sm:mt-8 z-10">
+        <div className={`rounded-2xl sm:rounded-3xl border p-3 sm:p-6 shadow-md ${palette.isDark ? 'bg-slate-900/80 border-slate-855 text-slate-100' : 'bg-white border-slate-200/80 text-slate-800'}`}>
           
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between border-b border-slate-150/15 pb-4 mb-6 gap-4">
             <h2 className="text-lg font-black flex items-center gap-2">
