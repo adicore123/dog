@@ -90,11 +90,8 @@ function PasswordGate({ onUnlock }) {
 }
 
 // ─── Main Settings Panel ───────────────────────────────────────────────────────
-export default function SettingsPanel({ history = [], dogs = [], navigate }) {
+export default function SettingsPanel({ history = [], dogs = [], navigate, isSystemDisabled = false, onSystemToggle }) {
   const [unlocked, setUnlocked] = useState(false);
-  const [systemDisabled, setSystemDisabled] = useState(() =>
-    localStorage.getItem('grooming_system_disabled') === 'true'
-  );
   const [showDisableConfirm, setShowDisableConfirm] = useState(false);
   const [activeTab, setActiveTab] = useState('logs');
 
@@ -111,14 +108,12 @@ export default function SettingsPanel({ history = [], dogs = [], navigate }) {
   };
 
   const handleDisableSystem = () => {
-    localStorage.setItem('grooming_system_disabled', 'true');
-    setSystemDisabled(true);
+    onSystemToggle(true);
     setShowDisableConfirm(false);
   };
 
   const handleEnableSystem = () => {
-    localStorage.setItem('grooming_system_disabled', 'false');
-    setSystemDisabled(false);
+    onSystemToggle(false);
   };
 
   if (!unlocked) return <PasswordGate onUnlock={() => setUnlocked(true)} />;
@@ -153,13 +148,13 @@ export default function SettingsPanel({ history = [], dogs = [], navigate }) {
 
       {/* System Status Banner */}
       <div className={`mb-6 px-4 py-3 rounded-2xl border flex items-center gap-3 ${
-        systemDisabled
+        isSystemDisabled
           ? 'bg-red-50 border-red-200 text-red-700'
           : 'bg-emerald-50 border-emerald-200 text-emerald-700'
       }`}>
-        {systemDisabled ? <PowerOff className="w-5 h-5 shrink-0" /> : <Power className="w-5 h-5 shrink-0" />}
+        {isSystemDisabled ? <PowerOff className="w-5 h-5 shrink-0" /> : <Power className="w-5 h-5 shrink-0" />}
         <span className="font-bold text-sm">
-          {systemDisabled
+          {isSystemDisabled
             ? '⛔ המערכת כבויה — מסך הטלוויזיה וממשק הניהול אינם פעילים.'
             : '✅ המערכת פעילה ועובדת בצורה תקינה.'}
         </span>
@@ -306,7 +301,7 @@ export default function SettingsPanel({ history = [], dogs = [], navigate }) {
                 </div>
               </div>
 
-              {systemDisabled ? (
+              {isSystemDisabled ? (
                 <button
                   onClick={handleEnableSystem}
                   className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold rounded-xl transition-all cursor-pointer shadow-sm text-sm"

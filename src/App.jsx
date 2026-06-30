@@ -368,6 +368,16 @@ export default function App() {
     return localStorage.getItem('grooming_whatsapp_template') || 'שלום {owner}, הטיפול של {dog} בסלון JOY & POLA הסתיים בהצלחה והוא מוכן לאיסוף! 🐶✂️';
   });
 
+  // System on/off state — real React state so UI reacts immediately
+  const [isSystemDisabled, setIsSystemDisabled] = useState(() =>
+    localStorage.getItem('grooming_system_disabled') === 'true'
+  );
+
+  const handleSystemToggle = (disabled) => {
+    localStorage.setItem('grooming_system_disabled', disabled ? 'true' : 'false');
+    setIsSystemDisabled(disabled);
+  };
+
   // Refs to prevent recursive write/sync feedback loops
   const isSyncingDogsRef = useRef(false);
   const isSyncingHistoryRef = useRef(false);
@@ -383,9 +393,19 @@ export default function App() {
     const handleLocationChange = () => {
       setCurrentPath(window.location.pathname);
     };
-
     window.addEventListener('popstate', handleLocationChange);
     return () => window.removeEventListener('popstate', handleLocationChange);
+  }, []);
+
+  // Cross-tab sync: listen for system disable changes from other windows/tabs
+  useEffect(() => {
+    const handleStorage = (e) => {
+      if (e.key === 'grooming_system_disabled') {
+        setIsSystemDisabled(e.newValue === 'true');
+      }
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
   const navigate = (path) => {
@@ -744,17 +764,18 @@ export default function App() {
         history={history}
         dogs={dogs}
         navigate={navigate}
+        isSystemDisabled={isSystemDisabled}
+        onSystemToggle={handleSystemToggle}
       />
     );
   }
 
-  // Check if system is disabled — redirect everything except /settings to a shutdown screen
-  const isSystemDisabled = localStorage.getItem('grooming_system_disabled') === 'true';
-  if (isSystemDisabled && currentPath !== '/settings') {
+  // System shutdown screen — blocks TV & admin when disabled
+  if (isSystemDisabled) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 text-white font-sans" dir="rtl">
         <div className="text-center space-y-5 p-8">
-          <div className="text-6xl">⛔</div>
+          <div className="text-7xl">⛔</div>
           <h1 className="text-2xl font-black text-slate-200">המערכת כבויה כרגע</h1>
           <p className="text-slate-400 text-sm max-w-xs mx-auto">המספרה אינה פעילה כרגע. אנא חזור מאוחר יותר.</p>
           <button
