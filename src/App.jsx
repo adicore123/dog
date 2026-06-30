@@ -611,6 +611,8 @@ export default function App() {
 
   const handleLoadDemo = () => {
     const now = Date.now();
+    const threshold = parseInt(localStorage.getItem('grooming_alert_threshold')) || 15;
+    
     const demoDogs = [
       {
         id: 'demo-wait-1',
@@ -631,7 +633,7 @@ export default function App() {
         breed: 'מלטז',
         notes: 'שמפו היפואלרגני בלבד, עור רגיש',
         status: 'waiting',
-        arrivalTime: now - 25 * 60 * 1000,
+        arrivalTime: now - (threshold + 1) * 60 * 1000, // Dynamic alert based on settings
         startTime: null
       },
       {
