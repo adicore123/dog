@@ -146,19 +146,32 @@ export default function SettingsPanel({ history = [], dogs = [], navigate, isSys
         </button>
       </header>
 
-      {/* System Status Banner */}
-      <div className={`mb-6 px-4 py-3 rounded-2xl border flex items-center gap-3 ${
-        isSystemDisabled
-          ? 'bg-red-50 border-red-200 text-red-700'
-          : 'bg-emerald-50 border-emerald-200 text-emerald-700'
-      }`}>
-        {isSystemDisabled ? <PowerOff className="w-5 h-5 shrink-0" /> : <Power className="w-5 h-5 shrink-0" />}
-        <span className="font-bold text-sm">
-          {isSystemDisabled
-            ? '⛔ המערכת כבויה — מסך הטלוויזיה וממשק הניהול אינם פעילים.'
-            : '✅ המערכת פעילה ועובדת בצורה תקינה.'}
-        </span>
-      </div>
+      {/* System ON/OFF Toggle — one click, instant */}
+      <button
+        onClick={() => onSystemToggle(!isSystemDisabled)}
+        className={`mb-6 w-full px-5 py-4 rounded-2xl border flex items-center gap-4 transition-all cursor-pointer ${
+          isSystemDisabled
+            ? 'bg-red-50 border-red-200 hover:bg-red-100'
+            : 'bg-emerald-50 border-emerald-200 hover:bg-emerald-100'
+        }`}
+      >
+        {isSystemDisabled ? <PowerOff className="w-6 h-6 text-red-500 shrink-0" /> : <Power className="w-6 h-6 text-emerald-500 shrink-0" />}
+        <div className="flex-1 text-right">
+          <div className={`font-black text-sm ${isSystemDisabled ? 'text-red-700' : 'text-emerald-700'}`}>
+            {isSystemDisabled ? '⛔ המערכת כבויה' : '✅ המערכת פעילה'}
+          </div>
+          <div className={`text-xs font-medium mt-0.5 ${isSystemDisabled ? 'text-red-400' : 'text-emerald-500'}`}>
+            {isSystemDisabled ? 'לחץ כאן כדי להפעיל מחדש' : 'לחץ כאן כדי לכבות את המערכת'}
+          </div>
+        </div>
+        <div className={`px-4 py-2 rounded-xl text-xs font-extrabold ${
+          isSystemDisabled
+            ? 'bg-emerald-500 text-white'
+            : 'bg-red-500 text-white'
+        }`}>
+          {isSystemDisabled ? 'הפעל ▶' : 'כבה ■'}
+        </div>
+      </button>
 
       {/* Tabs */}
       <div className="flex gap-1 mb-6 bg-slate-100 rounded-2xl p-1 w-fit">
@@ -290,8 +303,8 @@ export default function SettingsPanel({ history = [], dogs = [], navigate, isSys
             {/* Disable / Enable System */}
             <div className="rounded-2xl border border-slate-200 p-5 space-y-4">
               <div className="flex items-start gap-3">
-                <div className={`p-2.5 rounded-xl ${systemDisabled ? 'bg-red-100' : 'bg-slate-100'}`}>
-                  {systemDisabled ? <PowerOff className="w-5 h-5 text-red-500" /> : <Power className="w-5 h-5 text-slate-500" />}
+                <div className={`p-2.5 rounded-xl ${isSystemDisabled ? 'bg-red-100' : 'bg-slate-100'}`}>
+                  {isSystemDisabled ? <PowerOff className="w-5 h-5 text-red-500" /> : <Power className="w-5 h-5 text-slate-500" />}
                 </div>
                 <div className="flex-1">
                   <h3 className="font-black text-slate-800 text-sm">מצב המערכת</h3>
