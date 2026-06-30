@@ -143,15 +143,17 @@ export default function DogCard({ dog, compact = false, isDark = false }) {
 
         {/* Special Notes */}
         {dog.notes && (
-          <div className={`rounded-xl border transition-all ${
+          <div className={`rounded-xl border transition-all flex flex-col ${
             isDark 
               ? 'bg-slate-950/45 border-slate-850/80 text-slate-350' 
               : 'bg-slate-50/70 border-slate-100 text-slate-600'
           } ${
-            compact ? 'p-2 text-[10px] mt-1.5 line-clamp-1' : 'p-3 text-xs mt-2.5 line-clamp-2'
+            compact ? 'p-2 mt-1.5' : 'p-3 mt-2.5'
           }`} title={dog.notes}>
-            <span className="font-extrabold text-[9px] block opacity-75 mb-0.5">דגשי טיפול:</span>
-            {dog.notes}
+            <span className="font-extrabold text-[9px] block opacity-75 mb-0.5 shrink-0">דגשי טיפול:</span>
+            <span className={`${compact ? 'text-[10px] line-clamp-1' : 'text-xs line-clamp-2'} leading-snug`}>
+              {dog.notes}
+            </span>
           </div>
         )}
       </div>
