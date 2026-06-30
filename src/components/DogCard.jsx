@@ -125,7 +125,7 @@ export default function DogCard({ dog, compact = false, isDark = false }) {
                 ? 'bg-indigo-950/40 border-indigo-900 text-indigo-300' 
                 : 'bg-indigo-50 border-indigo-100 text-indigo-700'
             } ${
-              compact ? 'text-[9px] md:text-xs py-0.5 px-1.5 max-w-[80px] md:max-w-[100px]' : 'text-xs py-1 px-3 max-w-[130px]'
+              compact ? 'text-[11px] sm:text-xs md:text-sm py-0.5 px-2 max-w-[90px] sm:max-w-[120px]' : 'text-xs sm:text-sm py-1 px-3 max-w-[150px]'
             }`}>
               {dog.breed}
             </span>
@@ -136,7 +136,7 @@ export default function DogCard({ dog, compact = false, isDark = false }) {
         {dog.ownerName && (
           <div className={`font-bold ${
             isDark ? 'text-slate-400' : 'text-slate-500'
-          } ${compact ? 'text-[10px] mt-0.5' : 'text-xs mt-1'}`}>
+          } ${compact ? 'text-xs sm:text-sm mt-0.5' : 'text-sm sm:text-base mt-1'}`}>
             בעלים: <span className={isDark ? 'text-slate-200' : 'text-slate-750'}>{dog.ownerName}</span>
           </div>
         )}
@@ -148,10 +148,10 @@ export default function DogCard({ dog, compact = false, isDark = false }) {
               ? 'bg-slate-950/45 border-slate-850/80 text-slate-350' 
               : 'bg-slate-50/70 border-slate-100 text-slate-600'
           } ${
-            compact ? 'p-2 mt-1.5' : 'p-3 mt-2.5'
+            compact ? 'p-2.5 mt-1.5' : 'p-3.5 mt-2.5'
           }`} title={dog.notes}>
-            <span className="font-extrabold text-[9px] block opacity-75 mb-0.5 shrink-0">דגשי טיפול:</span>
-            <span className={`${compact ? 'text-[10px] line-clamp-1' : 'text-xs line-clamp-2'} leading-snug`}>
+            <span className={`font-extrabold block opacity-75 mb-0.5 shrink-0 ${compact ? 'text-[11px] sm:text-xs' : 'text-xs sm:text-sm'}`}>דגשי טיפול:</span>
+            <span className={`${compact ? 'text-xs sm:text-sm line-clamp-1' : 'text-sm sm:text-base line-clamp-2'} leading-snug`}>
               {dog.notes}
             </span>
           </div>
