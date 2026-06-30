@@ -761,7 +761,7 @@ export default function AdminDashboard({
               <div className="divide-y divide-slate-150/10 overflow-y-auto max-h-72 pr-1 space-y-3.5">
                 {waitingDogs.map((dog) => {
                   const waitMinutes = getWaitingTimeMinutes(dog.arrivalTime);
-                  const isAlert = waitMinutes >= 20;
+                  const isAlert = waitMinutes >= alertThresholdMinutes;
 
                   return (
                     <div
