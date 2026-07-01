@@ -398,17 +398,7 @@ export default function App() {
     return () => window.removeEventListener('popstate', handleLocationChange);
   }, []);
 
-  useFirebaseSync(
-    setDogs,
-    setHistory,
-    setIsSystemDisabled,
-    setActivePaletteId,
-    setTvSoundEnabled,
-    setBusinessAddress,
-    setLogoUrl,
-    setWhatsappTemplate,
-    triggerSound
-  );
+
 
   const navigate = (path) => {
     window.history.pushState({}, '', path);
@@ -432,6 +422,18 @@ export default function App() {
       return [];
     }
   });
+
+  useFirebaseSync(
+    setDogs,
+    setHistory,
+    setIsSystemDisabled,
+    setActivePaletteId,
+    setTvSoundEnabled,
+    setBusinessAddress,
+    setLogoUrl,
+    setWhatsappTemplate,
+    triggerSound
+  );
 
   const handleRegisterDog = (newDog) => {
     const dogWithId = {
