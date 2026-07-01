@@ -1,4 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Settings, Shield, Clock, Search, LogOut, CheckCircle2, History, AlertTriangle, Dog, Scissors, Image as ImageIcon, MapPin, MessageSquare, Volume2, Palette, PowerOff, Power } from 'lucide-react';
+import { ref, set } from 'firebase/database';
+import { database } from './firebase';
+import { useFirebaseSync } from './useFirebaseSync';
+
 import TvDisplay from './components/TvDisplay';
 import AdminDashboard from './components/AdminDashboard';
 import AdminLogin from './components/AdminLogin';
@@ -374,13 +379,9 @@ export default function App() {
   );
 
   const handleSystemToggle = (disabled) => {
-    localStorage.setItem('grooming_system_disabled', disabled ? 'true' : 'false');
     setIsSystemDisabled(disabled);
+    set(ref(database, 'systemDisabled'), disabled);
   };
-
-  // Refs to prevent recursive write/sync feedback loops
-  const isSyncingDogsRef = useRef(false);
-  const isSyncingHistoryRef = useRef(false);
 
   // Dynamic background style matching active palette
   const activePalette = PALETTES.find(p => p.id === activePaletteId) || PALETTES[0];
@@ -397,16 +398,17 @@ export default function App() {
     return () => window.removeEventListener('popstate', handleLocationChange);
   }, []);
 
-  // Cross-tab sync: listen for system disable changes from other windows/tabs
-  useEffect(() => {
-    const handleStorage = (e) => {
-      if (e.key === 'grooming_system_disabled') {
-        setIsSystemDisabled(e.newValue === 'true');
-      }
-    };
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
-  }, []);
+  useFirebaseSync(
+    setDogs,
+    setHistory,
+    setIsSystemDisabled,
+    setActivePaletteId,
+    setTvSoundEnabled,
+    setBusinessAddress,
+    setLogoUrl,
+    setWhatsappTemplate,
+    triggerSound
+  );
 
   const navigate = (path) => {
     window.history.pushState({}, '', path);
@@ -418,7 +420,6 @@ export default function App() {
       const savedDogs = localStorage.getItem('grooming_dogs_queue');
       return savedDogs ? JSON.parse(savedDogs) : [];
     } catch (e) {
-      console.error('Failed to parse grooming_dogs_queue', e);
       return [];
     }
   });
@@ -428,145 +429,9 @@ export default function App() {
       const savedHistory = localStorage.getItem('grooming_history');
       return savedHistory ? JSON.parse(savedHistory) : [];
     } catch (e) {
-      console.error('Failed to parse grooming_history', e);
       return [];
     }
   });
-
-  // Local state changes trigger localStorage updates (skipped if updated via cross-tab sync)
-  useEffect(() => {
-    if (isSyncingDogsRef.current) {
-      isSyncingDogsRef.current = false;
-      return;
-    }
-    localStorage.setItem('grooming_dogs_queue', JSON.stringify(dogs));
-  }, [dogs]);
-
-  useEffect(() => {
-    if (isSyncingHistoryRef.current) {
-      isSyncingHistoryRef.current = false;
-      return;
-    }
-    localStorage.setItem('grooming_history', JSON.stringify(history));
-  }, [history]);
-
-  // Real-time synchronization across browser tabs using HTML5 Storage Events
-  useEffect(() => {
-    const handleStorageChange = (e) => {
-      if (e.key === 'grooming_dogs_queue') {
-        try {
-          const parsed = e.newValue ? JSON.parse(e.newValue) : [];
-          isSyncingDogsRef.current = true;
-          setDogs(parsed);
-        } catch (err) {
-          console.error('Failed to sync grooming_dogs_queue from another tab', err);
-        }
-      }
-      if (e.key === 'grooming_history') {
-        try {
-          const parsed = e.newValue ? JSON.parse(e.newValue) : [];
-          isSyncingHistoryRef.current = true;
-          setHistory(parsed);
-        } catch (err) {
-          console.error('Failed to sync grooming_history from another tab', err);
-        }
-      }
-      // Sync settings
-      if (e.key === 'grooming_active_palette' && e.newValue) {
-        setActivePaletteId(e.newValue);
-      }
-      if (e.key === 'grooming_tv_sound_enabled' && e.newValue) {
-        setTvSoundEnabled(e.newValue !== 'false');
-      }
-      if (e.key === 'grooming_business_address' && e.newValue !== null) {
-        setBusinessAddress(e.newValue);
-      }
-      if (e.key === 'grooming_logo_url' && e.newValue !== null) {
-        setLogoUrl(e.newValue);
-      }
-      if (e.key === 'grooming_whatsapp_template' && e.newValue !== null) {
-        setWhatsappTemplate(e.newValue);
-      }
-      // Cross-tab real-time audio synchronization
-      if (e.key === 'grooming_trigger_sound_event' && e.newValue) {
-        try {
-          const eventData = JSON.parse(e.newValue);
-          const isTv = window.location.pathname !== '/admin';
-          const soundEnabledSetting = localStorage.getItem('grooming_tv_sound_enabled') !== 'false';
-          
-          if (eventData && eventData.id) {
-            if (!isTv || soundEnabledSetting) {
-              triggerSound(eventData.id);
-            }
-          }
-        } catch (err) {
-          console.error('Failed to trigger sound from storage event', err);
-        }
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
-
-  // Backup active polling interval (runs every 800ms) to guarantee instant update on all tabs/setups
-  useEffect(() => {
-    const interval = setInterval(() => {
-      try {
-        const rawDogs = localStorage.getItem('grooming_dogs_queue');
-        if (rawDogs) {
-          const currentDogsStr = JSON.stringify(dogs);
-          if (rawDogs !== currentDogsStr) {
-            isSyncingDogsRef.current = true;
-            setDogs(JSON.parse(rawDogs));
-          }
-        }
-      } catch (e) {
-        console.error('Failed to poll dogs queue', e);
-      }
-
-      try {
-        const rawHistory = localStorage.getItem('grooming_history');
-        if (rawHistory) {
-          const currentHistoryStr = JSON.stringify(history);
-          if (rawHistory !== currentHistoryStr) {
-            isSyncingHistoryRef.current = true;
-            setHistory(JSON.parse(rawHistory));
-          }
-        }
-      } catch (e) {
-        console.error('Failed to poll history', e);
-      }
-
-      // Poll settings
-      const savedPalette = localStorage.getItem('grooming_active_palette') || 'cream_classic';
-      if (savedPalette !== activePaletteId) {
-        setActivePaletteId(savedPalette);
-      }
-
-      const savedTvSound = localStorage.getItem('grooming_tv_sound_enabled') !== 'false';
-      if (savedTvSound !== tvSoundEnabled) {
-        setTvSoundEnabled(savedTvSound);
-      }
-
-      const savedAddress = localStorage.getItem('grooming_business_address') || 'אבן גבירול 163, תל אביב';
-      if (savedAddress !== businessAddress) {
-        setBusinessAddress(savedAddress);
-      }
-
-      const savedLogo = localStorage.getItem('grooming_logo_url') || '/logo.jpg';
-      if (savedLogo !== logoUrl) {
-        setLogoUrl(savedLogo);
-      }
-
-      const savedTemplate = localStorage.getItem('grooming_whatsapp_template') || 'שלום {owner}, הטיפול של {dog} בסלון JOY & POLA הסתיים בהצלחה והוא מוכן לאיסוף! 🐶✂️';
-      if (savedTemplate !== whatsappTemplate) {
-        setWhatsappTemplate(savedTemplate);
-      }
-    }, 800);
-
-    return () => clearInterval(interval);
-  }, [dogs, history, activePaletteId, tvSoundEnabled, businessAddress, logoUrl, whatsappTemplate]);
 
   const handleRegisterDog = (newDog) => {
     const dogWithId = {
@@ -576,17 +441,15 @@ export default function App() {
       arrivalTime: Date.now(),
       startTime: null
     };
-    setDogs((prev) => [...prev, dogWithId]);
+    const next = [...dogs, dogWithId];
+    setDogs(next);
+    set(ref(database, 'dogs'), next);
   };
 
   const handleStartTreatment = (id) => {
-    setDogs((prev) =>
-      prev.map((dog) =>
-        dog.id === id
-          ? { ...dog, status: 'active', startTime: Date.now() }
-          : dog
-      )
-    );
+    const next = dogs.map((dog) => dog.id === id ? { ...dog, status: 'active', startTime: Date.now() } : dog);
+    setDogs(next);
+    set(ref(database, 'dogs'), next);
   };
 
   const handleFinishTreatment = (id) => {
@@ -609,25 +472,38 @@ export default function App() {
       durationSeconds
     };
 
-    setHistory((prev) => [completedSession, ...prev]);
-    setDogs((prev) => prev.filter((dog) => dog.id !== id));
+    const nextHistory = [completedSession, ...history];
+    const nextDogs = dogs.filter((dog) => dog.id !== id);
+    
+    setHistory(nextHistory);
+    setDogs(nextDogs);
+    set(ref(database, 'history'), nextHistory);
+    set(ref(database, 'dogs'), nextDogs);
   };
 
   const handleUpdateDog = (updatedDog) => {
-    setDogs((prev) => prev.map((d) => (d.id === updatedDog.id ? updatedDog : d)));
+    const next = dogs.map((d) => (d.id === updatedDog.id ? updatedDog : d));
+    setDogs(next);
+    set(ref(database, 'dogs'), next);
   };
 
   const handleDeleteDog = (id) => {
-    setDogs((prev) => prev.filter((d) => d.id !== id));
+    const next = dogs.filter((d) => d.id !== id);
+    setDogs(next);
+    set(ref(database, 'dogs'), next);
   };
 
   const handleDeleteHistoryItem = (id) => {
-    setHistory((prev) => prev.filter((item) => item.id !== id));
+    const next = history.filter((item) => item.id !== id);
+    setHistory(next);
+    set(ref(database, 'history'), next);
   };
 
   const handleClearAll = () => {
     setDogs([]);
     setHistory([]);
+    set(ref(database, 'dogs'), []);
+    set(ref(database, 'history'), []);
   };
 
   const handleLoadDemo = () => {
@@ -721,41 +597,42 @@ export default function App() {
 
     setDogs(demoDogs);
     setHistory(demoHistory);
+    set(ref(database, 'dogs'), demoDogs);
+    set(ref(database, 'history'), demoHistory);
   };
 
   const handleTriggerSound = (soundId) => {
-    // Play locally
     triggerSound(soundId);
-    // Sync to other tabs
-    localStorage.setItem('grooming_trigger_sound_event', JSON.stringify({
-      id: soundId,
-      timestamp: Date.now()
-    }));
+    set(ref(database, 'triggerSoundEvent'), { id: soundId, timestamp: Date.now() });
+  };
+
+  const updateSettingsInDb = (key, value) => {
+    set(ref(database, `settings/${key}`), value);
   };
 
   const handlePaletteChange = (paletteId) => {
     setActivePaletteId(paletteId);
-    localStorage.setItem('grooming_active_palette', paletteId);
+    updateSettingsInDb('activePaletteId', paletteId);
   };
 
   const handleTvSoundToggle = (enabled) => {
     setTvSoundEnabled(enabled);
-    localStorage.setItem('grooming_tv_sound_enabled', enabled ? 'true' : 'false');
+    updateSettingsInDb('tvSoundEnabled', enabled);
   };
 
   const handleBusinessAddressChange = (address) => {
     setBusinessAddress(address);
-    localStorage.setItem('grooming_business_address', address);
+    updateSettingsInDb('businessAddress', address);
   };
 
   const handleLogoUrlChange = (url) => {
     setLogoUrl(url);
-    localStorage.setItem('grooming_logo_url', url);
+    updateSettingsInDb('logoUrl', url);
   };
 
   const handleWhatsappTemplateChange = (template) => {
     setWhatsappTemplate(template);
-    localStorage.setItem('grooming_whatsapp_template', template);
+    updateSettingsInDb('whatsappTemplate', template);
   };
 
   if (currentPath === '/settings') {

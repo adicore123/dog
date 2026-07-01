@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Settings, Power, PowerOff, Shield, Lock,
   LogIn, AlertTriangle, Eye, EyeOff, ChevronRight, Trash2
 } from 'lucide-react';
+import { ref, onValue, set } from 'firebase/database';
+import { database } from '../firebase';
 
 const SETTINGS_PASSWORD = '4242';
 
@@ -96,26 +98,17 @@ export default function SettingsPanel({ history = [], dogs = [], navigate, isSys
   const [activeTab, setActiveTab] = useState('logs');
 
   // Load access log
-  const [accessLog, setAccessLog] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem('grooming_access_log') || '[]');
-    } catch { return []; }
-  });
+  const [accessLog, setAccessLog] = useState([]);
 
   useEffect(() => {
-    const handleStorageChange = (e) => {
-      if (e.key === 'grooming_access_log') {
-        try {
-          setAccessLog(JSON.parse(e.newValue || '[]'));
-        } catch { setAccessLog([]); }
-      }
-    };
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    const unsub = onValue(ref(database, 'accessLog'), (snapshot) => {
+      setAccessLog(snapshot.val() || []);
+    });
+    return unsub;
   }, []);
 
   const clearAccessLog = () => {
-    localStorage.removeItem('grooming_access_log');
+    set(ref(database, 'accessLog'), []);
     setAccessLog([]);
   };
 

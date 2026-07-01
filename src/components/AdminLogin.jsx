@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Lock, AlertCircle, Bone, Eye, EyeOff } from 'lucide-react';
+import { ref, get, set } from 'firebase/database';
+import { database } from '../firebase';
 
 export default function AdminLogin({ onLogin, navigate }) {
   const [password, setPassword] = useState('');
@@ -12,10 +14,11 @@ export default function AdminLogin({ onLogin, navigate }) {
       setError(false);
       // Record this login access
       try {
-        const existing = JSON.parse(localStorage.getItem('grooming_access_log') || '[]');
-        existing.unshift({ timestamp: Date.now() });
-        // Keep last 200 entries
-        localStorage.setItem('grooming_access_log', JSON.stringify(existing.slice(0, 200)));
+        get(ref(database, 'accessLog')).then(snapshot => {
+          const existing = snapshot.val() || [];
+          existing.unshift({ timestamp: Date.now() });
+          set(ref(database, 'accessLog'), existing.slice(0, 200));
+        });
       } catch (_) {}
       onLogin();
     } else {
